@@ -1,0 +1,652 @@
+"""Правки свитера при переносе NHL 24 → Legacy по правилам kit_rules.toml (поверх основы, до нашивок).
+
+* [crest_fit] — герб на груди не заходит на букву капитана/ассистента: зона 5 карты номеров шаблона (name_*_cm).
+  Если зазор «герб — зона буквы» меньше gap_min (у EA-форм Legacy медиана 0,02 — survey), герб опускается и уменьшается
+  относительно середины своего нижнего края (верх и бока уходят от буквы, низ на месте), но не меньше min_scale.
+  Работает в kit_hybrid.decal_post для нашивки crest.
+* [collar_lace.<КЛУБ>.<форма>] — ворот со шнуровкой без 3D-шнурков (hastie 0) от EA-комплекта Legacy (from): слои
+  по маскам EA — ткань, ворот и V (перекраска со светотенью EA), шнурки, люверсы, щит NHL по контуру; рельеф — весь
+  от from, места нашивок (smooth_boxes) — чистая основа A. Раскладка EA-ворота — общие ключи [collar_lace].
+* [chest_band.<КЛУБ>.<форма>] — горизонтальная полоса на груди уже: верхний край — прямая на trim ниже прежнего
+  (по середине груди), выше неё полоса закрашивается цветом свитера (концы у подмышек тоже).
+"""
+import os
+import tomllib
+
+import numpy as np
+from PIL import Image
+from scipy import ndimage as ndi
+
+from .kit_hybrid import RULES, collar_color
+
+LACE_ROI = (0.40, 0.40, 0.60, 0.68)  # u0, v0, u1, v1: ворот и шнуровка на развёртке Legacy стиля 1
+
+
+def _rules(path=RULES):
+    with open(path, "rb") as f:
+        return tomllib.load(f)
+
+
+def club_rule(table, code, kit, path=RULES):
+    """Правило [table.<КЛУБ>.<форма>] или None."""
+    return _rules(path).get(table, {}).get(code, {}).get(kit)
+
+
+def zone_rects(name_png, ids):
+    """Прямоугольники зон карты номеров (u0, v0, u1, v1); синий канал — номер зоны (5 — буква капитана)."""
+    a = np.asarray(Image.open(name_png).convert("RGBA")).astype(int)
+    h, w = a.shape[:2]
+    m = (a[..., 0] > 128) & (a[..., 1] > 128)
+    out = []
+    for z in ids:
+        ys, xs = np.nonzero(m & (a[..., 2] == z))
+        if len(xs):
+            out.append((xs.min() / w, ys.min() / h, (xs.max() + 1) / w, (ys.max() + 1) / h))
+    return out
+
+
+def rect_gap(u, v, rects):
+    """Наименьшее расстояние точек (u, v) до прямоугольников; 0 — точка внутри; нет точек — inf."""
+    g = np.inf
+    if not len(u):
+        return g
+    for u0, v0, u1, v1 in rects:
+        du = np.maximum(np.maximum(u0 - u, u - u1), 0)
+        dv = np.maximum(np.maximum(v0 - v, v - v1), 0)
+        g = min(g, float(np.sqrt(du * du + dv * dv).min()))
+    return g
+
+
+CREST_FIT_OVERRIDE = {}           # поля [crest_fit] клуба поверх kit_rules.toml (edge_kit.use_club: профиль crest_fit)
+
+
+def crest_fit(name_png, path=RULES):
+    """Правило [crest_fit] с зонами букв шаблона → словарь для kit_hybrid.decal_post (None — правила нет)."""
+    r = _rules(path).get("crest_fit")
+    if not r or not r.get("enabled", True):
+        return None
+    rects = zone_rects(name_png, r.get("zones", [5]))
+    if not rects:
+        return None
+    r = dict(r, **CREST_FIT_OVERRIDE)
+    return {"rects": rects, "gap_min": float(r.get("gap_min", 0.02)), "min_scale": float(r.get("min_scale", 0.6)),
+            "anchor": r.get("anchor", "bottom"), "max_bottom": float(r.get("max_bottom", 0.85))}
+
+
+def fit_crest(fit, gap_of, max_down):
+    """Сначала ниже (не больше max_down по v), потом меньше: наибольший масштаб s ∈ [min_scale, 1] и наименьший сдвиг,
+    при которых gap_of(s, сдвиг) ≥ gap_min. -> (s, сдвиг, зазор было, зазор стало)."""
+    need = fit["gap_min"]
+    g0 = gap_of(1.0, 0.0)
+    if g0 >= need:
+        return 1.0, 0.0, g0, g0
+    d = max_down
+    if gap_of(1.0, d) >= need:                    # хватает сдвига вниз — наименьший такой сдвиг
+        lo, hi = 0.0, d
+        for _ in range(12):
+            mid = (lo + hi) / 2
+            lo, hi = (lo, mid) if gap_of(1.0, mid) >= need else (mid, hi)
+        return 1.0, hi, g0, gap_of(1.0, hi)
+    lo, hi = fit["min_scale"], 1.0
+    if gap_of(lo, d) < need:
+        return lo, d, g0, gap_of(lo, d)
+    for _ in range(14):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if gap_of(mid, d) >= need else (lo, mid)
+    return lo, d, g0, gap_of(lo, d)
+
+
+def _box(H, b):
+    m = np.zeros((H, H), bool)
+    u0, v0, u1, v1 = b
+    m[int(v0 * H):int(np.ceil(v1 * H)), int(u0 * H):int(np.ceil(u1 * H))] = True
+    return m
+
+
+def _up_smooth(a, shape):
+    """Поле 1024² → размер сверхвыборки билинейно (края масок без «лестницы»)."""
+    f = (shape[0] / a.shape[0], shape[1] / a.shape[1]) + ((1,) if a.ndim == 3 else ())
+    return ndi.zoom(a, f, order=1, mode="nearest", grid_mode=True)
+
+
+def _smooth_shape(mask, shape):
+    """Бинарная форма 1024² → альфа на сверхвыборке: гладкий контур (билинейно, порог 0,5) и край ~1 тексель."""
+    m = _up_smooth(mask.astype(np.float64), shape) > 0.5
+    return np.clip(ndi.gaussian_filter(m.astype(np.float64), 0.8) * 1.5 - 0.25, 0, 1)
+
+
+def _up(a, shape):
+    """Маска/поле 1024² → размер сверхвыборки (повтор пикселей)."""
+    fy, fx = shape[0] // a.shape[0], shape[1] // a.shape[1]
+    return np.repeat(np.repeat(a, fy, axis=0), fx, axis=1)
+
+
+def _mode(px):
+    q = (px[:, :3] // 16).astype(int)
+    key = q[:, 0] * 256 + q[:, 1] * 16 + q[:, 2]
+    vals, cnt = np.unique(key, return_counts=True)
+    return np.median(px[key == vals[np.argmax(cnt)]], 0)
+
+
+def collar_lace_rule(code, kit, path=RULES):
+    """[collar_lace] (раскладка EA-ворота со шнуровкой — общая) + [collar_lace.<КЛУБ>.<форма>] или None."""
+    t = _rules(path).get("collar_lace", {})
+    own = t.get(code, {}).get(kit)
+    if own is None:
+        return None
+    return {**{k: v for k, v in t.items() if not isinstance(v, dict)}, **own}
+
+
+def _soft(mask, sigma=0.6):
+    """Маска → альфа с антиалиасингом ~1 тексель."""
+    return np.clip(ndi.gaussian_filter(mask.astype(np.float64), sigma) * 1.6 - 0.3, 0, 1)
+
+
+class CollarLace:
+    """Ворот со шнуровкой без 3D-шнурков ([collar_lace]): из EA-комплекта rule['from'] (папка шаблона tpl_dir).
+
+    Слои по маскам EA (развёртка Legacy), снизу вверх:
+      * ткань — цвет свитера под всей областью ворота и шнуровки (остатки ворота NHL 24 закрываются);
+      * ворот и нарисованный V — красное EA выше низа щита (v_bottom), перекраска со светотенью EA: выше split_v —
+        цвет ворота (collar), ниже — цвет V (v_insert); красное ниже щита (прорезь под шнурками) — не берётся;
+      * шнурки — альфа по цвету EA (её же сглаживание краёв: доля «тёмного» против белой ткани и красной прорези),
+        цвет lace со светотенью EA, без тёмной обводки; всё зелёное EA в зоне шнуровки — шнурки;
+      * люверсы — так же по альфе, цвет как у EA (металл);
+      * щит NHL — по контуру щита EA (белая кайма + чёрный контур), без подложки, ниже на shield_down (верх не
+        уходит под край выреза).
+    Альфы и цвета переходят на сверхвыборку билинейно (без «лестницы»).
+    Цвета: <часть>_color = [r, g, b] или <часть>_uv = [u, v] — точка на основе NHL 24 (самый частый цвет окна)."""
+
+    def __init__(self, rule, src_tex, tpl_dir, size=1024):
+        self.rule, self.tpl_dir, H = rule, tpl_dir, size
+        ea = np.asarray(Image.open(os.path.join(tpl_dir, "jersey_cm.png")).convert("RGB").resize((H, H))) \
+            .astype(np.float64)
+        R, G, B = ea[..., 0], ea[..., 1], ea[..., 2]
+        lum = ea @ np.array([0.299, 0.587, 0.114])
+        sat = ea.max(-1) - ea.min(-1)
+        yy = (np.arange(H)[:, None] + 0.5) / H + np.zeros((1, H))
+        roi = _box(H, rule.get("roi", LACE_ROI))
+        sbox = _box(H, rule["shield_box"])
+        lbox = _box(H, rule["lace_box"])
+
+        def ref(m):
+            return max(float(np.median(lum[m])), 1.0) if m.any() else 1.0
+
+        def color(part):
+            if part + "_color" in rule:
+                c = np.array(rule[part + "_color"], dtype=np.float64)
+                return np.concatenate([c, np.full(max(src_tex.shape[-1] - len(c), 0), 255.0)])  # + альфа основы
+            return collar_color(src_tex, {"sample_uv": rule[part + "_uv"], "sample_box": rule.get(part + "_win", 0.004),
+                                          "method": "mode"})
+        full = {k: color(k) for k in ("collar", "v_insert", "lace")}
+        self.colors = {k: c[:3] for k, c in full.items()}
+        self.insert = full["v_insert"]                                  # V-вставка «рубашки» (все каналы основы)
+        greenish = (G - R) > 10
+        w_red = np.clip((R - np.maximum(G, B) - 20) / 60.0, 0, 1)     # доля «красного EA»
+        # щит NHL EA: белая кайма → заливка → +контур (нейтральное, не зелёное и не красное)
+        white_ring = sbox & (lum > 150) & (sat < 45)
+        lab, n = ndi.label(ndi.binary_closing(white_ring, iterations=1))
+        if n:
+            white_ring = lab == (np.argmax(ndi.sum(white_ring, lab, range(1, n + 1))) + 1)
+        inner = ndi.binary_fill_holes(white_ring)
+        sil = inner | (ndi.binary_dilation(inner, iterations=2) & (sat < 50) & ~greenish & (w_red < 0.3))
+        sil = ndi.binary_fill_holes(sil)
+        # ворот и V: красное EA выше низа щита
+        v_bottom = rule.get("v_bottom", rule["shield_box"][3])
+        red_strong = roi & (R > G + 40) & (R > B + 40)
+        self.red_a = w_red * roi * (yy < v_bottom)
+        lum_s = ndi.gaussian_filter(lum, 1.2)
+        shade = np.clip(lum_s / ref(red_strong), 0.6, 1.25)[..., None]
+        self.red_col = np.where((yy >= rule["split_v"])[..., None], self.colors["v_insert"], self.colors["collar"]) * shade
+        # шнурки и люверсы: альфа по цвету EA в зоне шнуровки (ниже кокетки), без щита
+        white = ref(roi & ~red_strong & (sat < 12) & (lum > 170))
+        zone = lbox & (yy >= rule["lace_box"][1]) & ~sil
+        dark = zone & (lum < 0.6 * white) & (w_red < 0.3)
+        lab, n = ndi.label(dark)
+        idx = np.arange(1, n + 1)
+        size_ = ndi.sum(np.ones_like(lum), lab, idx)
+        green = ndi.maximum(greenish, lab, idx)
+        lz = zone & (yy >= rule.get("lace_top", rule["lace_box"][1]))          # ниже края кокетки EA
+        lace = np.isin(lab, idx[(size_ >= 12) & (green > 0)]) & lz
+        lace = ndi.binary_fill_holes(ndi.binary_closing(lace | (lz & greenish), iterations=1)) & lz & (w_red < 0.3)
+        eye = np.isin(lab, idx[(size_ >= 12) & (green == 0)]) & ~lace
+        core = lace & greenish
+        lace_lum = ref(core)
+        self.lace_m, self.eye_m, self.shield_m = lace, eye, sil                # формы: шнурки (с обводкой), люверсы, щит
+        # куда нашивкам нельзя: сами слои ворота (не вся рамка — герб на груди под шнуровкой не режется)
+        self.protect = ndi.binary_dilation((self.red_a > 0.05) | lace | eye | sil, iterations=3)
+        self.lace_col = self.colors["lace"] * np.clip(lum_s / lace_lum, 0.82, 1.12)[..., None]
+        self.ea = ea
+        self.shield_down = int(round(rule.get("shield_down", 0.0) * H))
+        self.area = ndi.binary_dilation(roi & ((self.red_a > 0) | lbox | sbox), iterations=10) & roi  # под тканью
+        self.feather = ndi.gaussian_filter(self.area.astype(np.float64), 1.2) * self.area
+        self.report = {"from": rule["from"], "colors": {k: [int(x) for x in c] for k, c in self.colors.items()},
+                       "lace_texels": int(lace.sum()), "eyelet_texels": int(eye.sum()), "shield_texels": int(sil.sum()),
+                       "shield_down": self.shield_down}
+        if rule.get("recolor", True) is not True:      # false — как есть, "palette" — по палитре
+            self._keep(rule, ea, roi, lz, sil, H)
+            self.area = ndi.binary_dilation(roi & ((self.red_a > 0) | lbox | sbox), iterations=10) & roi
+            self.feather = ndi.gaussian_filter(self.area.astype(np.float64), 1.2) * self.area
+            self.protect = ndi.binary_dilation((self.red_a > 0.05) | self.lace_m | sil, iterations=3)
+
+    def _keep(self, rule, ea, roi, lz, sil, H):
+        """recolor = false — ворот уже в цветах клуба (например, EA-форма того же клуба): кусок EA как есть. Ворот и V —
+        по раскладке layout_from (красное EA-ворота выше низа щита), шнурки и люверсы — всё не цвета ткани EA в зоне
+        шнуровки у середины; цвет V-вставки «рубашки» — V EA (v_insert_uv на EA)."""
+        lay = np.asarray(Image.open(os.path.join(os.path.dirname(self.tpl_dir), rule.get("layout_from", rule["from"]),
+                                                 "jersey_cm.png")).convert("RGB").resize((H, H))).astype(np.float64)
+        R, G, B = lay[..., 0], lay[..., 1], lay[..., 2]
+        yy = (np.arange(H)[:, None] + 0.5) / H + np.zeros((1, H))
+        v_bottom = rule.get("v_bottom", rule["shield_box"][3])
+        if rule.get("layout_from", rule["from"]) == rule["from"]:
+            # своя раскладка: ворот и V — не цвет ткани EA, связное с серединой ворота; кант кокетки (тонкая
+            # полоса во всю ширину у низа ворота) — не ворот
+            xx = (np.arange(H)[None, :] + 0.5) / H + np.zeros((H, 1))
+            body_l = _mode(lay[_box(H, (0.40, 0.62, 0.46, 0.66))])
+            non = roi & (np.abs(lay - body_l).sum(-1) > 60) & (yy < v_bottom)
+            pip = rule.get("piping_v", [0.575, 0.586])
+            non &= ~((yy >= pip[0]) & (yy < pip[1]) & (np.abs(xx - 0.5) > 0.035))
+            lab_t, _n = ndi.label(non)
+            seed = lab_t[int(rule.get("seed_v", 0.47) * H), H // 2]
+            tear = ndi.binary_fill_holes(lab_t == seed) & ~sil if seed else np.zeros((H, H), bool)
+        else:
+            tear = ndi.binary_closing(roi & (R > G + 40) & (R > B + 40), iterations=3) & (yy < v_bottom) & ~sil
+        ring = ndi.binary_dilation(lz, iterations=6) & ~ndi.binary_dilation(lz, iterations=2)
+        body = _mode(ea[ring])
+        content = lz & (np.abs(ea - body).sum(-1) > 60) & ~sil
+        pip = rule.get("piping_v", [0.575, 0.586])
+        content &= ~((yy >= pip[0]) & (yy < pip[1] + 0.002))                  # кант кокетки EA — не шнуровка
+        lab, n = ndi.label(ndi.binary_closing(content, iterations=1))
+        keep = np.zeros_like(content)
+        for k, sl in enumerate(ndi.find_objects(lab), 1):
+            if (sl is not None and 0.46 <= (sl[1].start + sl[1].stop) / 2 / H <= 0.54
+                    and (sl[1].stop - sl[1].start) / H <= 0.10):                 # шире шнуровки — не она
+                keep |= lab == k
+        self.red_a, self.red_col = _soft(tear, 0.5), ea
+        self.lace_m, self.lace_col = keep, ea
+        self.eye_m = np.zeros_like(keep)
+        self._tear = tear
+        u, v = rule.get("v_insert_ea_uv", [0.5, 0.56])
+        self.insert = np.concatenate([ea[int(v * H), int(u * H)], self.insert[3:]])
+        if rule.get("recolor") == "palette":   # ворот EA → цвета клуба по палитре со светотенью EA
+            lum = ea @ np.array([0.299, 0.587, 0.114])
+            src = {k: ea[int(rule[k + "_src_uv"][1] * H), int(rule[k + "_src_uv"][0] * H)]
+                   for k in ("collar", "v_insert")}
+            d = np.stack([np.sqrt(((ea - src[k]) ** 2).sum(-1)) for k in ("collar", "v_insert")])
+            w = np.exp(-(d / 40.0) ** 2)
+            w = w / np.maximum(w.sum(0), 1e-6)
+            out = np.zeros_like(ea)
+            for i, k in enumerate(("collar", "v_insert")):
+                ls = max(float(src[k] @ np.array([0.299, 0.587, 0.114])), 1.0)
+                out += w[i][..., None] * self.colors[k] * np.clip(lum / ls, 0.6, 1.2)[..., None]
+            self.red_col = out
+            # шнуровка: светлое (как ворот EA) — цвет шнурков, как V EA (прорезь) — цвет V, чёрное (обводка,
+            # люверсы) — как у EA
+            refs = [(src["collar"], self.colors["lace"]), (src["v_insert"], self.colors["v_insert"]), (np.zeros(3), None)]
+            d = np.stack([np.sqrt(((ea - c) ** 2).sum(-1)) for c, _t in refs])
+            w = np.exp(-(d / 45.0) ** 2)
+            w = w / np.maximum(w.sum(0), 1e-6)
+            lc = np.zeros_like(ea)
+            for i, (c, t) in enumerate(refs):
+                ls = max(float(c @ np.array([0.299, 0.587, 0.114])), 1.0)
+                lc += w[i][..., None] * (ea if t is None else t * np.clip(lum / ls, 0.6, 1.2)[..., None])
+            self.lace_col = lc
+            self.insert = np.concatenate([self.colors["v_insert"], self.insert[3:]])
+        self.report.update(recolor=False, layout_from=rule.get("layout_from", rule["from"]), keep_texels=int(keep.sum()))
+
+    def pre(self, out, msk):
+        """Основа на сверхвыборке (до нашивок): ткань → ворот и V → шнурки → люверсы → щит NHL. Формы шнурков,
+        люверсов и щита — гладким контуром на сверхвыборке (билинейно и порог 0,5), край — 1 тексель."""
+        sh = msk.shape
+        ring = ndi.binary_dilation(self.area, iterations=10) & ~ndi.binary_dilation(self.area, iterations=3)
+        ring = _up(ring, sh) & msk
+        body = _mode(out[ring])[:3] if ring.any() else np.array([24.0, 55.0, 46.0])
+        new = np.broadcast_to(body, sh + (3,)).copy()
+        k = self.shield_down
+
+        def layer(alpha, col):
+            nonlocal new
+            new = new * (1 - alpha[..., None]) + col * alpha[..., None]
+
+        layer(_up_smooth(self.red_a, sh), _up_smooth(self.red_col, sh))
+        layer(_smooth_shape(self.lace_m, sh), _up_smooth(self.lace_col, sh))
+        layer(_smooth_shape(self.eye_m, sh), _up_smooth(self.ea, sh))
+        layer(_smooth_shape(np.roll(self.shield_m, k, axis=0), sh), _up(np.roll(self.ea, k, axis=0), sh))  # щит — чётко
+        a = (_up_smooth(self.feather, sh) * msk)[..., None]
+        out[..., :3] = out[..., :3] * (1 - a) + np.clip(new, 0, 255) * a
+        return out
+
+    def relief(self, nm_path, sm_path, clean_dir):
+        """Весь рельеф (nm, sm) — из шаблона EA (relief_from, иначе from); места нашивок (smooth_boxes) — чистая основа A."""
+        rdir = os.path.join(os.path.dirname(self.tpl_dir), self.rule.get("relief_from", self.rule["from"]))
+        ea_cm = np.asarray(Image.open(os.path.join(rdir, "jersey_cm.png")).convert("RGB").resize((1024, 1024))) \
+            .astype(np.float64)
+        logo = np.zeros((1024, 1024), bool)
+        for b in self.rule.get("smooth_boxes", []):
+            m = _box(1024, b)
+            ys, xs = np.nonzero(m)
+            y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+            win = ea_cm[y0:y1, x0:x1]
+            border = np.concatenate([win[0], win[-1], win[:, 0], win[:, -1]])
+            d = np.abs(win - np.median(border, 0)).sum(-1) > 45
+            d = ndi.binary_fill_holes(ndi.binary_closing(d, iterations=2))
+            logo[y0:y1, x0:x1] |= d
+        logo = ndi.binary_dilation(logo, iterations=5)
+        mk = ndi.gaussian_filter(logo.astype(np.float64), 2.5)
+        for path, name, clean in ((nm_path, "jersey_nm.png", "clean_A_nm.png"), (sm_path, "jersey_sm.png", "clean_A_sm.png")):
+            mode = Image.open(path).mode
+            ea = np.asarray(Image.open(os.path.join(rdir, name)).convert(mode).resize((1024, 1024), Image.LANCZOS)) \
+                .astype(np.float64)
+            cl = np.asarray(Image.open(os.path.join(clean_dir, clean)).convert(mode).resize((1024, 1024), Image.LANCZOS)) \
+                .astype(np.float64)
+            m = mk[..., None] if ea.ndim == 3 else mk
+            res = ea * (1 - m) + cl * m
+            if self.rule.get("relief", "all") == "collar":   # только ворот (шнуровка, щит) поверх нынешнего рельефа
+                cur = np.asarray(Image.open(path).convert(mode).resize((1024, 1024))).astype(np.float64)
+                region = self.protect | getattr(self, "_tear", np.zeros_like(self.protect))
+                rm = ndi.gaussian_filter(ndi.binary_dilation(region, iterations=4).astype(np.float64), 2.0)
+                rm = rm[..., None] if ea.ndim == 3 else rm
+                res = cur * (1 - rm) + ea * rm
+            k = self.shield_down * 1024 // self.ea.shape[0]
+            if k:  # рельеф щита — вместе со щитом (ниже на shield_down)
+                sb = _box(1024, self.rule["shield_box"])
+                sb = ndi.binary_dilation(sb, iterations=3)
+                res[sb] = np.roll(res, k, axis=0)[sb]
+            Image.fromarray(np.clip(np.round(res), 0, 255).astype(np.uint8), mode).save(path)
+
+
+class BrandSwap:
+    """adidas → Reebok ([brand], решение пользователя 12.10): логотип Reebok из EA-комплекта (from, рамка src_box)
+    ставится на место Reebok у EA-форм (back: центр и ширина на развёртке Legacy) и на места adidas формы
+    ([brand.<КЛУБ>.<форма>] spots: clear — что закрасить цветом ткани, center, width); цвет — цвет adidas этой формы на
+    NHL 24 (nhl24_uv — точка у логотипа). Рельеф Reebok — из того же EA-комплекта (relief())."""
+
+    def __init__(self, rule, comp, tpl_dir, spots=()):
+        self.rule, self.tpl_dir = rule, tpl_dir
+        ea = np.asarray(Image.open(os.path.join(tpl_dir, "jersey_cm.png")).convert("RGB").resize((1024, 1024))) \
+            .astype(np.float64)
+        u0, v0, u1, v1 = (int(round(x * 1024)) for x in rule["src_box"])
+        win = ea[v0:v1, u0:u1] @ np.array([0.299, 0.587, 0.114])
+        bg, fg = np.percentile(win, 10), np.percentile(win, 99)
+        self.src_a = np.clip((win - bg) / max(fg - bg, 1.0), 0, 1)              # форма надписи Reebok (альфа EA)
+        self.src_wh = (rule["src_box"][2] - rule["src_box"][0], rule["src_box"][3] - rule["src_box"][1])
+        self.spots = [dict(rule["back"], name="back")] + [dict(sp) for sp in spots]
+        for sp in self.spots:
+            sp["color"] = self._logo_color(comp, sp["nhl24_uv"], sp.get("nhl24_win", 0.02))
+        self.report = [{"spot": sp.get("name", "spot"), "center": sp["center"], "width": sp["width"],
+                        "color": [int(c) for c in sp["color"][:3]]} for sp in self.spots]
+
+    @staticmethod
+    def _logo_color(comp, uv, win):
+        H = comp.shape[0]
+        x, y, w = int(uv[0] * H), int(uv[1] * H), max(int(win * H), 4)
+        box = comp[max(y - w, 0):y + w, max(x - w, 0):x + w, :3]
+        border = np.concatenate([box[0], box[-1], box[:, 0], box[:, -1]])
+        bg = np.median(border, 0)
+        d = np.abs(box - bg).sum(-1) > 90
+        return np.median(box[d], 0) if d.any() else np.array([230.0, 230.0, 230.0])
+
+    def __call__(self, out, msk):
+        Hs, Ws = msk.shape
+        for sp in self.spots:
+            if "clear" in sp:  # место adidas — цветом ткани (по кольцу вокруг)
+                cb = np.zeros((Hs, Ws), bool)
+                a0, b0, a1, b1 = sp["clear"]
+                cb[int(b0 * Hs):int(b1 * Hs), int(a0 * Ws):int(a1 * Ws)] = True
+                ring = ndi.binary_dilation(cb, iterations=8) & ~ndi.binary_dilation(cb, iterations=3) & msk
+                if ring.any():
+                    out[cb & msk, :3] = _mode(out[ring])[:3]
+            w = sp["width"]
+            h = w * self.src_wh[1] / self.src_wh[0]
+            pw, ph = max(int(round(w * Ws)), 1), max(int(round(h * Hs)), 1)
+            a = np.asarray(Image.fromarray((self.src_a * 255).astype(np.uint8)).resize((pw, ph), Image.LANCZOS)) / 255.0
+            cx, cy = sp["center"]
+            x0, y0 = int(round(cx * Ws - pw / 2)), int(round(cy * Hs - ph / 2))
+            reg = out[y0:y0 + ph, x0:x0 + pw, :3]
+            aa = (a * msk[y0:y0 + ph, x0:x0 + pw])[..., None]
+            out[y0:y0 + ph, x0:x0 + pw, :3] = reg * (1 - aa) + sp["color"][:3] * aa
+        return out
+
+    def relief(self, nm_path, sm_path):
+        """Рельеф надписи Reebok (рамка src_box EA) — на место back; у прочих мест рельеф не меняется."""
+        b = self.rule["back"]
+        if abs(b["width"] - self.src_wh[0]) > 1e-3:
+            return
+        box = _box(1024, self.rule["src_box"])
+        m = ndi.gaussian_filter(ndi.binary_dilation(box, iterations=3).astype(np.float64), 1.5)
+        for path, name in ((nm_path, "jersey_nm.png"), (sm_path, "jersey_sm.png")):
+            mode = Image.open(path).mode
+            cur = np.asarray(Image.open(path).convert(mode).resize((1024, 1024))).astype(np.float64)
+            ea = np.asarray(Image.open(os.path.join(self.tpl_dir, name)).convert(mode).resize((1024, 1024), Image.LANCZOS)) \
+                .astype(np.float64)
+            mm = m[..., None] if cur.ndim == 3 else m
+            Image.fromarray(np.clip(np.round(cur * (1 - mm) + ea * mm), 0, 255).astype(np.uint8), mode).save(path)
+
+
+class BandTrim:
+    """Полоса на груди уже: верхний край — прямая на trim ниже прежнего (по середине груди)."""
+
+    def __init__(self, rule):
+        self.r = rule
+
+    def __call__(self, out, msk):
+        r = self.r
+        Hs, Ws = msk.shape
+        u0, u1 = r.get("u", [0.22, 0.78])
+        v0, v1 = r.get("v", [0.60, 0.82])
+        x0, x1, y0, y1 = int(u0 * Ws), int(u1 * Ws), int(v0 * Hs), int(v1 * Hs)
+
+        def sample(uv, box=0.006):
+            x, y, b = int(uv[0] * Ws), int(uv[1] * Hs), max(int(box * Hs), 2)
+            win = out[y - b:y + b, x - b:x + b].reshape(-1, out.shape[-1])
+            ok = msk[y - b:y + b, x - b:x + b].reshape(-1)
+            return _mode(win[ok]) if ok.any() else win.mean(0)
+
+        band, body = sample(r["band_uv"]), sample(r["body_uv"])
+        reg = out[y0:y1, x0:x1]
+        m = (np.abs(reg[..., :3] - band[:3]).sum(-1) < r.get("thr", 60)) & msk[y0:y1, x0:x1]
+        tops = []
+        for a, b in r.get("ref_u", [[0.30, 0.38], [0.62, 0.70]]):
+            for x in range(int(a * Ws) - x0, int(b * Ws) - x0):
+                ys = np.nonzero(m[:, x])[0]
+                if len(ys):
+                    tops.append(ys.min())
+        if not tops:
+            return out
+        top0 = int(np.median(tops))
+        top = top0 + int(round(r["trim"] * Hs))
+        cut = m.copy()
+        cut[top:] = False
+        cut[:max(top0 - int(r.get("above", 0.02) * Hs), 0)] = False             # только у полосы (ворот выше — нет)
+        cut = ndi.binary_dilation(cut, iterations=3) & msk[y0:y1, x0:x1]   # и сглаженный край прежней полосы
+        cut[top:] = False
+        reg[cut] = body[: reg.shape[-1]]
+        self.report = {"band_top_v": round((y0 + np.median(tops)) / Hs, 4), "new_top_v": round((y0 + top) / Hs, 4),
+                       "texels": int(cut.sum())}
+        return out
+
+
+# ---------------------------------------------------------------- опись EA и лист «было | стало»
+
+def letter_glyphs(font_png):
+    """Буквы капитана и ассистента из атласа шрифта (столбец справа: C, под ней A). -> {"C": RGBA, "A": RGBA}."""
+    f = np.asarray(Image.open(font_png).convert("RGBA"))
+    H, W = f.shape[:2]
+    x0, y0, y1 = int(0.80 * W), int(0.12 * H), int(0.66 * H)
+    col = f[y0:y1, x0:]
+    lab, n = ndi.label(col[..., 3] > 60)
+    objs = [s for s in ndi.find_objects(lab) if s is not None and (s[0].stop - s[0].start) > 0.08 * H]
+    objs.sort(key=lambda s: s[0].start)
+    return {k: col[s] for k, s in zip("CA", objs[:2])}
+
+
+def with_letter(cm, font_png, rect, letter="C"):
+    """Развёртка с буквой капитана в зоне карты номеров (по высоте зоны, по центру) — как ставит игра."""
+    g = letter_glyphs(font_png).get(letter)
+    im = Image.fromarray(np.asarray(cm)[..., :3].astype(np.uint8)).convert("RGBA")
+    if g is None:
+        return np.asarray(im.convert("RGB"))
+    W, H = im.size
+    u0, v0, u1, v1 = rect
+    zw, zh = (u1 - u0) * W, (v1 - v0) * H
+    sc = min(zw / g.shape[1], zh / g.shape[0])
+    gi = Image.fromarray(g).resize((max(1, int(g.shape[1] * sc)), max(1, int(g.shape[0] * sc))), Image.LANCZOS)
+    im.alpha_composite(gi, (int(u0 * W + (zw - gi.size[0]) / 2), int(v0 * H + (zh - gi.size[1]) / 2)))
+    return np.asarray(im.convert("RGB"))
+
+
+def crest_box(cm, rect, size=512):
+    """Рамка герба на груди (связная область «не цвет зоны буквы» у (0,5; 0,745)) и зазор до зоны. -> (рамка, зазор)."""
+    a = np.asarray(Image.fromarray(np.asarray(cm)[..., :3].astype(np.uint8)).resize((size, size))).astype(int)
+    u0, v0, u1, v1 = rect
+    body = _mode(a[int(v0 * size):int(v1 * size), int(u0 * size):int(u1 * size)].reshape(-1, 3).astype(np.float64))
+    diff = np.abs(a - body).sum(-1) > 60
+    roi = _box(size, (0.33, 0.60, 0.67, 0.90))
+    lab, n = ndi.label(ndi.binary_closing(diff & roi, iterations=2))
+    ys, xs = np.nonzero(lab)
+    if not len(xs):
+        return None, None
+    i = np.argmin((ys - 0.745 * size) ** 2 + (xs - 0.5 * size) ** 2)
+    m = lab == lab[ys[i], xs[i]]
+    ys, xs = np.nonzero(m)
+    return ((xs.min() / size, ys.min() / size, (xs.max() + 1) / size, (ys.max() + 1) / size),
+            rect_gap((xs + 0.5) / size, (ys + 0.5) / size, [rect]))
+
+
+def cmd_survey(a):
+    """EA-комплекты Legacy (распакованные шаблоны): герб и зона буквы капитана — зазор, низ, ширина."""
+    import glob
+    rows = []
+    for d in sorted(glob.glob(os.path.join(a.kits, "1_*"))):
+        if not (os.path.exists(os.path.join(d, "jersey_cm.png")) and os.path.exists(os.path.join(d, "name_cm.png"))):
+            continue
+        z = zone_rects(os.path.join(d, "name_cm.png"), [5])
+        if not z:
+            continue
+        bb, g = crest_box(Image.open(os.path.join(d, "jersey_cm.png")).convert("RGB"), z[0])
+        if bb and bb[2] - bb[0] > 0.1:          # мелкое — не герб (не нашлось)
+            rows.append((os.path.basename(d), bb, g))
+    p = lambda xs: np.percentile(xs, [10, 25, 50, 75, 90]).round(3).tolist()
+    print(f"EA-форм {len(rows)}: зазор герб—буква p10/25/50/75/90 {p([r[2] for r in rows])}; "
+          f"низ герба {p([r[1][3] for r in rows])}; ширина {p([r[1][2] - r[1][0] for r in rows])}")
+
+
+def cmd_sheet(a):
+    """Лист «было | стало»: грудь с буквой C в зоне капитана, ворот крупно (с рельефом nm/sm) и щиток NHL с осью
+    симметрии. Строка: ИМЯ=заголовок@папка;заголовок@папка[;…];name_cm.png (папка — jersey_cm/nm/sm, font_cm)."""
+    from PIL import ImageDraw, ImageFont
+    from . import kit3d, kit_hybrid
+    mesh, _ = kit_hybrid.legacy_with_shirt()
+    f16 = ImageFont.truetype("C:/Windows/Fonts/segoeui.ttf", 16)
+    f20 = ImageFont.truetype("C:/Windows/Fonts/segoeuib.ttf", 20)
+    CHEST, NECK, SHIELD = (-0.36, 0.36, 1.10, 1.62), (-0.17, 0.17, 1.42, 1.70), (-0.07, 0.07, 1.50, 1.66)
+
+    def load(d, n):
+        return np.asarray(Image.open(os.path.join(d, n)).convert("RGB").resize((1024, 1024))).astype(np.float64)
+
+    rows = []
+    for spec in a.kits:
+        name, rest = spec.split("=", 1)
+        parts = rest.split(";")
+        rect = zone_rects(parts[-1], [5])[0]
+        cols = []
+        for item in parts[:-1]:
+            title, d = item.split("@", 1)
+            cm, nm, sm = load(d, "jersey_cm.png"), load(d, "jersey_nm.png"), load(d, "jersey_sm.png")
+            _bb, g = crest_box(cm, rect)
+            cl = with_letter(cm, os.path.join(d, "font_cm.png"), rect).astype(np.float64)
+            v1 = kit3d.render_lit(mesh, cl, "front", 330, frame=CHEST, nmap=nm, smap=sm, ss=2)
+            v2 = kit3d.render_lit(mesh, cm, "front", 300, frame=NECK, nmap=nm, smap=sm, ss=2)
+            v3 = kit3d.render_lit(mesh, cm, "front", 260, frame=SHIELD, nmap=nm, smap=sm, ss=3)  # щиток и шнуровка ×4
+            ImageDraw.Draw(v3).line([(v3.width // 2, 0), (v3.width // 2, v3.height)], fill=(255, 0, 255))
+            cols.append((title, g, v1, v2, v3))
+        rows.append((name, cols))
+        print(name, [round(c[1], 3) for c in cols], flush=True)
+    _t, _g, v1, v2, v3 = rows[0][1][0]
+    cw = v1.width + v2.width + v3.width + 16
+    rh = max(v1.height, v2.height, v3.height) + 30
+    ncol = max(len(c) for _n, c in rows)
+    S = Image.new("RGB", (200 + ncol * (cw + 30), 70 + len(rows) * rh), (30, 30, 34))
+    d = ImageDraw.Draw(S)
+    d.multiline_text((10, 8), a.title or ("Было | стало: грудь с буквой «C» в зоне капитана, ворот крупно, щиток NHL "
+                     "(лиловая линия — середина)\nзазор «герб — зона буквы»; у EA-форм Legacy медиана 0,02"),
+                     fill=(240, 240, 240), font=f20, spacing=4)
+    for i, (name, cols) in enumerate(rows):
+        y = 64 + i * rh
+        d.multiline_text((10, y + rh // 2 - 24), name.replace("|", "\n"), fill=(240, 240, 240), font=f20, spacing=4)
+        for j, (title, g, v1, v2, v3) in enumerate(cols):
+            x = 200 + j * (cw + 30)
+            d.text((x, y), f"{title}: зазор герб—буква {g:.3f}" if g is not None else title, fill=(220, 220, 220),
+                   font=f16)
+            S.paste(v1, (x, y + 24))
+            S.paste(v2, (x + v1.width + 8, y + 24))
+            S.paste(v3, (x + v1.width + v2.width + 16, y + 24))
+    S.save(a.out)
+    print(a.out, S.size)
+
+
+def cmd_backsheet(a):
+    """Лист «ворот сзади»: шея и задняя часть ворота со спины (3D, с рельефом) и развёртка ворота. ИМЯ=папка."""
+    from PIL import ImageDraw, ImageFont
+    from . import kit3d, kit_hybrid
+    mesh, _ = kit_hybrid.legacy_with_shirt()
+    f16 = ImageFont.truetype("C:/Windows/Fonts/segoeuib.ttf", 16)
+    f20 = ImageFont.truetype("C:/Windows/Fonts/segoeuib.ttf", 20)
+    BACK = (-0.14, 0.14, 1.58, 1.80)
+    LOGO = (-0.06, 0.06, 1.62, 1.72)
+    UVBOX = (0.36, 0.30, 0.64, 0.66)
+
+    def load(d, n):
+        return np.asarray(Image.open(os.path.join(d, n)).convert("RGB").resize((1024, 1024))).astype(np.float64)
+
+    tiles = []
+    for spec in a.kits:
+        name, d = spec.split("=", 1)
+        cm, nm, sm = load(d, "jersey_cm.png"), load(d, "jersey_nm.png"), load(d, "jersey_sm.png")
+        v = kit3d.render_lit(mesh, cm, "back", 300, frame=BACK, nmap=nm, smap=sm, ss=2)
+        z = kit3d.render_lit(mesh, cm, "back", 240, frame=LOGO, nmap=nm, smap=sm, ss=3)   # место Reebok крупно
+        u0, v0, u1, v1 = (int(x * 1024) for x in UVBOX)
+        uv = Image.fromarray(cm[v0:v1, u0:u1].astype(np.uint8)).resize((int((u1 - u0) * 1.2), int((v1 - v0) * 1.2)),
+                                                                         Image.NEAREST)
+        t = Image.new("RGB", (v.width + z.width + uv.width + 16, max(v.height, z.height, uv.height) + 28), (30, 30, 34))
+        ImageDraw.Draw(t).text((2, 2), name.replace("|", " "), fill=(240, 240, 240), font=f16)
+        t.paste(v, (0, 26))
+        t.paste(z, (v.width + 8, 26))
+        t.paste(uv, (v.width + z.width + 16, 26))
+        tiles.append(t)
+        print(name, flush=True)
+    cols = a.cols
+    tw = max(t.width for t in tiles)
+    th = max(t.height for t in tiles)
+    rows = (len(tiles) + cols - 1) // cols
+    S = Image.new("RGB", (cols * (tw + 16) + 16, 50 + rows * (th + 16)), (30, 30, 34))
+    ImageDraw.Draw(S).text((16, 12), "Ворот сзади: шея со спины (3D, с рельефом) | место Reebok крупно | развёртка ворота "
+                           "(u 0,36–0,64, v 0,30–0,66; низ — грудь, верх — спина)", fill=(240, 240, 240), font=f20)
+    for i, t in enumerate(tiles):
+        S.paste(t, (16 + (i % cols) * (tw + 16), 50 + (i // cols) * (th + 16)))
+    S.save(a.out)
+    print(a.out, S.size)
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("survey")
+    s.add_argument("--kits", default=os.path.join(os.path.dirname(RULES), "..", "..", "game", "work", "nhl24", "out",
+                                                  "_legacy_kits"))
+    s = sub.add_parser("sheet")
+    s.add_argument("out")
+    s.add_argument("kits", nargs="+", help="ИМЯ=заголовок@папка;…;name_cm.png («|» в ИМЕНИ — перенос)")
+    s.add_argument("--title", default="", help="заголовок листа («\n» — перенос)")
+    s = sub.add_parser("backsheet")
+    s.add_argument("out")
+    s.add_argument("kits", nargs="+", help="ИМЯ=папка формы (jersey_cm/nm/sm)")
+    s.add_argument("--cols", type=int, default=5)
+    a = ap.parse_args()
+    return {"survey": cmd_survey, "sheet": cmd_sheet, "backsheet": cmd_backsheet}[a.cmd](a)
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

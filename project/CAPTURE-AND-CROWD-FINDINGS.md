@@ -1,0 +1,8 @@
+# Capture and crowd investigation
+Two whole-run captures (scene boundaries not marked): 2x GPU busy median17.78ms versus720p8.76ms; CPU busy25.92ms versus24.10ms; game process CPU median~40% of8 logical processors both runs.720p GPU3D median30.4%,2x64.9%. System-wide cores0–3 heavily occupied; these counters do not attribute each core to game threads. Strong evidence against a simple pixel-throughput limit; CPU-side work/synchronization is the leading hypothesis, not proven function-level attribution. PresentMon GPUWait is not direct evidence of a specific guest fence.
+Crowd hypothesis remains plausible from user penalty-shot observation, but camera, players, effects, and simulation also change. No validated crowd optimization located in checked documentation. Erik inherited high-cut renderer plans mentioning instancing/culling; those are experimental paths, not proven current Vulkan fixes. Redth profiling found guest fence polling and warned that apparent guest CPU cost can be waiting. Megarohas performance.md discusses a measured fence-spin fix for NHL13; do not transplant it into Legacy without mapping and validation.
+Next: keep720p fixed, collect Erik existing diagnostic timings and thread-level CPU, mark normal wide-camera versus penalty-shot/close-up sections, then test crowd-only reduction if a verified reversible control is found. Ask before any new game/SDK source changes.
+Sources:
+https://github.com/Redth/nhl-legacy-recomp-mac/blob/main/docs/macos-perf-where-the-time-goes.md
+https://github.com/megarohas/nhl-legacy-remaster/blob/main/docs/performance.md
+https://github.com/erik-131/nhl-legacy-recomp/blob/nuc-perf/docs/f5-handoff-next-session.md

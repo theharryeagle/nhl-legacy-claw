@@ -1,0 +1,863 @@
+{
+  "iso": "E:\\Emulation\\roms\\xbox360\\NHL Legacy Edition (USA, Europe) (En,Fr,De,Sv,Fi,Ru,Cs)\\NHL Legacy Edition (USA, Europe) (En,Fr,De,Sv,Fi,Ru,Cs).iso",
+  "iso_bytes": 8738846720,
+  "partition_base": 34078720,
+  "files": [
+    {
+      "path": "cacherender.big",
+      "size": 1458552880,
+      "sha256": "e05179835ff2099b01a3085c335f6b8d6cb8de52cd5cf7ecee23e948d586d6d2"
+    },
+    {
+      "path": "nocacherender.big",
+      "size": 1938855744,
+      "sha256": "649cc6f223b147daeb8147e7a834fb5c2eda786d9447063e6a25a6d1da225cfd"
+    },
+    {
+      "path": "options.viv",
+      "size": 284,
+      "sha256": "35687503fe73c46a549de91d6bb2462ac36ae5e9210382bad83ae3031de03e81"
+    },
+    {
+      "path": "renderboot.big",
+      "size": 9401248,
+      "sha256": "72a6498007d645fa32443b84acfccdd9a8261baeba0a2890d24977796cd2a490"
+    },
+    {
+      "path": "nxeart",
+      "size": 462848,
+      "sha256": "1aea7900301ba381459b778b89151abdc94aada43e34549c289e835b01f1eff7"
+    },
+    {
+      "path": "gamedata/gps.big",
+      "size": 2487,
+      "sha256": "8a83bedaf9d453efc79f15b5065dc22485bf5b09674df702a594d6e7fa948144"
+    },
+    {
+      "path": "gamedata/nis.big",
+      "size": 79504208,
+      "sha256": "cc92118299e7b7b39b6fe87c7217b282a3c2a377b6494bb64cccd71d654ce1c0"
+    },
+    {
+      "path": "gamedata/anim/faceposer.big",
+      "size": 8050064,
+      "sha256": "190f3ecc9f2b0bde3422d706d793eb257d8383fdf31fbd4052564acbbd4eff23"
+    },
+    {
+      "path": "gamedata/aidata.big",
+      "size": 1504,
+      "sha256": "8cebe46396750c0142a95ba0b5e6c3862c98409bc7649f886d60d901bfe672b2"
+    },
+    {
+      "path": "nocache.big",
+      "size": 2301830880,
+      "sha256": "9ac38034cc777416efb6240594b5e1074df662deb12f663e864773d66dab410e"
+    },
+    {
+      "path": "default.xex",
+      "size": 10448896,
+      "sha256": "d818eb15775c1fee34b057b0fc494b211535d07123230ee45bd7d40991c55624"
+    },
+    {
+      "path": "data0.big",
+      "size": 29427680,
+      "sha256": "7d4a441ad067e2df3ae71b32d8942903f766decbac693f655ef2fdfeff51b998"
+    },
+    {
+      "path": "cache.big",
+      "size": 312439568,
+      "sha256": "9cd1cf7d31eaef0047a7061424f7f07408fee7cb155c9648fda5611ca9596fdf"
+    },
+    {
+      "path": "cachemovie.big",
+      "size": 11086736,
+      "sha256": "8b3f2c28c3c0b834bd31f273a52f1bce5235dbe334674f5e928c44ea3297bfaa"
+    },
+    {
+      "path": "cacheoverlay.big",
+      "size": 3487968,
+      "sha256": "ab5d1c1497171484c86a90a92042eac7b70bc35b4cda8f5f36bdc19e3a7e3910"
+    },
+    {
+      "path": "cacheboot.big",
+      "size": 31705408,
+      "sha256": "b558b4f6354b3f13bdedb499524c8068a488cd5a17d332f497d8c33bd782c989"
+    },
+    {
+      "path": "cacheaudio.big",
+      "size": 79725376,
+      "sha256": "eb472fc68802c4f75aff0510a79bab870d000979a0abce4a9b2d2c0133a87ae5"
+    },
+    {
+      "path": "audioboot2.big",
+      "size": 5635728,
+      "sha256": "c21da26a48b23081cd92445d1878b5925a600fdb55e78afbc1b0aa900c2361ec"
+    },
+    {
+      "path": "boot.big",
+      "size": 11184432,
+      "sha256": "6b4b88db2de4014d07875a9995abfc69a18ad4a2a80d6d96b981243a3d70a3dd"
+    },
+    {
+      "path": "audioboot.big",
+      "size": 1381808,
+      "sha256": "37b89e918706b508bbdbb3716a5c165569152354dd3bdbdb07d90c297eaf6326"
+    },
+    {
+      "path": "$SystemUpdate/AvatarEditor.xex",
+      "size": 18378752,
+      "sha256": "3d1eef0df6e67e0895dc6a5de5a56762499435af7eb7b7e3a931f167b157e4da"
+    },
+    {
+      "path": "$SystemUpdate/BiometricSetup.xex",
+      "size": 5808128,
+      "sha256": "cb41d4aaeda86db9cfe0cf3a9ad1cc212a050e789e28fd259bf8a5cae0f47e9c"
+    },
+    {
+      "path": "$SystemUpdate/dash.ExtraAVCodecs.xex",
+      "size": 3448832,
+      "sha256": "1a7b91e0ef3232041b7dcd01fae6e32bddaea8ed4b1b131ddd7a6b1e059726d1"
+    },
+    {
+      "path": "$SystemUpdate/dash.ExtraAVCodecs2.xex",
+      "size": 495616,
+      "sha256": "71ab758a874932b7735105ef97e9a64c5a909bc2ea3de19fd9c85a0fca2afa1c"
+    },
+    {
+      "path": "$SystemUpdate/Dash.FieldCalibration.lex",
+      "size": 630784,
+      "sha256": "c6cb7865180ba425fc105f2ea89ebbaa48f9acc167053d6443a0ebdc8037e117"
+    },
+    {
+      "path": "$SystemUpdate/Dash.Kiosk.lex",
+      "size": 303104,
+      "sha256": "07c7eb9d67c0388bf257c21f10f7718f77c680d5fbd61d58be500baa6fc4fb8b"
+    },
+    {
+      "path": "$SystemUpdate/dash.natalpregame.xex",
+      "size": 593920,
+      "sha256": "02377be333c53bcdf0d4e85bddd3fc82fd02b6b18c02ac86d3b48c6e640f25a4"
+    },
+    {
+      "path": "$SystemUpdate/Dash.NetworkStorage.lex",
+      "size": 200704,
+      "sha256": "7f42830ca31c72a463e52da9e4368ff533599a26aca852bee65e4cd34eafb363"
+    },
+    {
+      "path": "$SystemUpdate/Dash.NuiTroubleshooter.lex",
+      "size": 2465792,
+      "sha256": "a2fe58c277eeeba50175b56158d1a28c338c4e4f9cdc7024ab49764b3c007578"
+    },
+    {
+      "path": "$SystemUpdate/Dash.Search.xex",
+      "size": 761856,
+      "sha256": "b91ed13d0d423298699beafd327bf601c91a8f43f76055775983989068c30310"
+    },
+    {
+      "path": "$SystemUpdate/dash.xex",
+      "size": 15683584,
+      "sha256": "130030e657016032298e4b97532913f4f16b238a2518ec96cddbade2e27088f3"
+    },
+    {
+      "path": "$SystemUpdate/dashnui.xex",
+      "size": 3219456,
+      "sha256": "996127953857b7d5be104ccc58d85863ac7efa3d6fba9e8c26766faa5317ca12"
+    },
+    {
+      "path": "$SystemUpdate/FFFE07DF00000001",
+      "size": 1150976,
+      "sha256": "f6f1894800697b2c48be4fc7d40f61b225d7cc1218e6be20cd1e801c9300705c"
+    },
+    {
+      "path": "$SystemUpdate/FFFE07DF00000002",
+      "size": 16064512,
+      "sha256": "65d9203537a5b8238174fdec36963af172fa7ea8c6598421fe0917ddeed9af7f"
+    },
+    {
+      "path": "$SystemUpdate/FFFE07DF00000006",
+      "size": 7962624,
+      "sha256": "a7ca48e9a8ee9726258cb3cfa06c31ce310fa7bdde5579092e860ebd665145bd"
+    },
+    {
+      "path": "$SystemUpdate/FFFE07DF00000008",
+      "size": 33013760,
+      "sha256": "1b8136873559bfd5b15efd449a3a3c91ec16b8217a3da7199c20d042cbb4d769"
+    },
+    {
+      "path": "$SystemUpdate/Guide.AccountRecovery.xex",
+      "size": 958464,
+      "sha256": "aaed927d3910422e30bbb5c3496b3ed024e2d429074929cf1f9c2a6a515c4bd0"
+    },
+    {
+      "path": "$SystemUpdate/Guide.AvatarMiniCreator.xex",
+      "size": 495616,
+      "sha256": "d80b2f1c999f126e0b7e8fe58632392c92e4cbbfb6a255b68be9ad1cafd5d987"
+    },
+    {
+      "path": "$SystemUpdate/Guide.CSVTrans.xex",
+      "size": 102400,
+      "sha256": "29073a200f8e8532cfb3a32fb8ec9de3d7c30d62149087aa6e4a8dd2f0023c5e"
+    },
+    {
+      "path": "$SystemUpdate/Guide.Fitness.xex",
+      "size": 200704,
+      "sha256": "c19c4a4d45402814ed547632829a0e70c160d1ede550cfd2b0c49e16a10e3457"
+    },
+    {
+      "path": "$SystemUpdate/Guide.NuiTroubleshooter.xex",
+      "size": 729088,
+      "sha256": "f325a1b7aab33cffc166a98c87eed9fbd8a0942be06fc3adde8df86853a94b8e"
+    },
+    {
+      "path": "$SystemUpdate/Guide.TFA.xex",
+      "size": 729088,
+      "sha256": "be929f7345e993de690ccd954ccf747ffc331f22b71622b5edbedca54ed3075a"
+    },
+    {
+      "path": "$SystemUpdate/L.AvatarEditor.xex.common.xzp",
+      "size": 53103,
+      "sha256": "462128bff5792723a899a26c5e9cbf0b3ac4a4d0405dd6e0f90398c98e500da9"
+    },
+    {
+      "path": "$SystemUpdate/L.AvatarEditor.xex.controlp.xzp",
+      "size": 7531,
+      "sha256": "14c11de95d47e2c5693e10cfc34c302715ea26c15fa2afcd57a191861ce84ee6"
+    },
+    {
+      "path": "$SystemUpdate/L.AvatarEditor.xex.MEDIA.xzp",
+      "size": 39169,
+      "sha256": "e760af542f6796f9d01ab0cb987f95c3780b4a072e09d145d6e07d13715a6e3f"
+    },
+    {
+      "path": "$SystemUpdate/L.BiometricSetup.xex.biometri.xzp",
+      "size": 32797,
+      "sha256": "f5ba7e270e294617197d48d1ea4e4d86c85c2b7381da483d7a8da94a371dd833"
+    },
+    {
+      "path": "$SystemUpdate/L.BiometricSetup.xex.controlp.xzp",
+      "size": 7531,
+      "sha256": "14c11de95d47e2c5693e10cfc34c302715ea26c15fa2afcd57a191861ce84ee6"
+    },
+    {
+      "path": "$SystemUpdate/L.CreateProfile.xex.cp.xzp",
+      "size": 18903,
+      "sha256": "7e448ad421a36c0540ad3fcab1b0d3c948f1f0a8af249a5a9f2743b9a9f85b84"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.FamilyCenter.xex.familyce.xzp",
+      "size": 2707,
+      "sha256": "c8a3e14d0c280d111627bc775fe12563472e2002fd1583fc6a8217634b79bf84"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.FamilyCenter.xex.familyco.xzp",
+      "size": 3799,
+      "sha256": "d33d0605721fdea15e68d0cff1ca22adfa736758a92ef3cee34bb000c4cdb7e9"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.FamilyWizard.lex.familyco.xzp",
+      "size": 3799,
+      "sha256": "d33d0605721fdea15e68d0cff1ca22adfa736758a92ef3cee34bb000c4cdb7e9"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.FamilyWizard.lex.xzp.xzp",
+      "size": 41660,
+      "sha256": "25d5dda3c6d43b3ecdde03b0a8106e00532d598559aa2da4556a7b2f9589f221"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.FieldCalibration.lex.fieldxzp.xzp",
+      "size": 8765,
+      "sha256": "6682b63087948897b39b735ee69b704d3c577249e58cb237046b46021cdae28b"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.LF.GamerTagChange.lex.DashUI.xzp",
+      "size": 11728,
+      "sha256": "79d20e1a3b442f1e28718b268423886444e419587240952c7994346b25ecdbdc"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.AccountMgmt.lex.DashUI.xzp",
+      "size": 16802,
+      "sha256": "771d29122c673204c3134cf5dd69e507d23499c30a2abeb2166701184f2664e8"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.ContentExplorer.lex.DashUI.xzp",
+      "size": 42136,
+      "sha256": "6f548536f49a846eba05a6a989709c972875d5d631ce056acd68a8b73d4f071c"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.Core.xex.SharedUI.xzp",
+      "size": 79922,
+      "sha256": "32580551957f69006c89d2e0bad22a30cfd689903437a0785f58f9cd66e965d3"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.LiveSignup.lex.DashUI.xzp",
+      "size": 36861,
+      "sha256": "329fe86d2bdec82b95298259acec40f82e26a492d2f03d0da8ae11a9656ab81b"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.LiveSignup.lex.media.xzp",
+      "size": 30216,
+      "sha256": "ef152d1b3da7cbd9201efe9a8be4c22415718a6009f6a602802db5255bca8b10"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.MicrosoftStore.lex.CntryUI.xzp",
+      "size": 22906,
+      "sha256": "26cd01afefac8ca354ee01424c76e6c2b568d54669618acff74f569d6d95a522"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.MicrosoftStore.lex.DashUI.xzp",
+      "size": 10912,
+      "sha256": "67a72c525f330635f447c7e63cccd0044eededc04a5162798f18e815fde3fe65"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.MicrosoftStore.lex.media.xzp",
+      "size": 30216,
+      "sha256": "ef152d1b3da7cbd9201efe9a8be4c22415718a6009f6a602802db5255bca8b10"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.MP.Purchase.lex.DashUI.xzp",
+      "size": 2128,
+      "sha256": "d9748e2cea0851d606b086897ff1299940a2f7fd9051c24e76dcff86d2fd8a4d"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.natalpregame.xex.natalpre.xzp",
+      "size": 5078,
+      "sha256": "d1bb1fd1edaca2f8b62451375238e7b1fdce98ea546ec422e2cdf47ed4730636"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.NetworkStorage.lex.xzp.xzp",
+      "size": 10510,
+      "sha256": "817021b0e6d80574d7376b9eb273320de57a847d7916865313cabaeea1090399"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.NuiTroubleshooter.lex.nuitsxzp.xzp",
+      "size": 43186,
+      "sha256": "55fcb8c50b74281e75272aa625b56535e8e8914921c9fee4edc87a76ad8bbe00"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.OnlineCommon.lex.ekmedia.xzp",
+      "size": 561,
+      "sha256": "cd358d1fe210ff83e05f85234148627e5f4668181c3922744f2b5ca232295fa3"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.OnlineCommon.lex.vkmedia.xzp",
+      "size": 11859,
+      "sha256": "ad941f38269a9b5c83064ea24d44a1f69c5dbffdf7b5f2f7c448bd1017ec2991"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.PrivacyUI.xex.familyco.xzp",
+      "size": 3799,
+      "sha256": "d33d0605721fdea15e68d0cff1ca22adfa736758a92ef3cee34bb000c4cdb7e9"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.PrivacyUI.xex.privacyu.xzp",
+      "size": 92634,
+      "sha256": "1a14d56cf57557017ed3d10c6f69bc4282602b0ec586f814a0c0869b8542499e"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.Search.lex.dashsear.xzp",
+      "size": 2984,
+      "sha256": "70007914ca27dea095953e251d703a001d8ab4b8ddfe8f8e554d9ca8430e0f26"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.Search.lex.vkmedia.xzp",
+      "size": 11859,
+      "sha256": "ad941f38269a9b5c83064ea24d44a1f69c5dbffdf7b5f2f7c448bd1017ec2991"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.Search.xex.dashsear.xzp",
+      "size": 36267,
+      "sha256": "1c295d7682907e8e09d76c8a023c4949b726c4b19072cd42fbe912afe0310994"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.Search.xex.vkmedia.xzp",
+      "size": 11859,
+      "sha256": "ad941f38269a9b5c83064ea24d44a1f69c5dbffdf7b5f2f7c448bd1017ec2991"
+    },
+    {
+      "path": "$SystemUpdate/L.Dash.Social.lex.xzp.xzp",
+      "size": 20494,
+      "sha256": "2c64931585f1d1d74a818daeee0b8848c17378ec8ad166889caf9996f16b1def"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.arcade.xzp",
+      "size": 1996,
+      "sha256": "a7c779abbb8e8979537795ab4038d400a78ee2dc771877252b2b7b1161b456ec"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.consoles.xzp",
+      "size": 362899,
+      "sha256": "76ff25f318e6d7a513bd1c62565847d2c9a1f1b483c5edbb1192bbac99e1d1fb"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.controlp.xzp",
+      "size": 7531,
+      "sha256": "14c11de95d47e2c5693e10cfc34c302715ea26c15fa2afcd57a191861ce84ee6"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.contui.xzp",
+      "size": 14286,
+      "sha256": "95abd41dac8e6b3250f0d3362fbd7b2563d63949ff05a9b65c03566b6586895b"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.dashcomm.xzp",
+      "size": 53103,
+      "sha256": "462128bff5792723a899a26c5e9cbf0b3ac4a4d0405dd6e0f90398c98e500da9"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.dashmain.xzp",
+      "size": 1215,
+      "sha256": "b4c9bda0075a9630d9e9805b0c9c6207731612baaad1217e1bda4ce9ac59f2a7"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.download.xzp",
+      "size": 24303,
+      "sha256": "425e6a46cb868f191c50b6cc9c7e5b5264b4b8d52c9dc9406a1ebf9ea88365bb"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.dvd.xzp",
+      "size": 13566,
+      "sha256": "e1628f18b46672b689d8d1016463e74270c9ec3eee85b266518a03d27579eaff"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.epix.xzp",
+      "size": 15091,
+      "sha256": "9ca83b40965893f53e70fd77eb94e2d32946cdf90e6a1348c462b46ce837eca7"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.gamer.xzp",
+      "size": 2288,
+      "sha256": "185e391d09a6dd3ea1bf4706dab132fbcd483c203fd6fe83de3ba90818bf1072"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.gamercar.xzp",
+      "size": 6357,
+      "sha256": "b8d9c3cdd1adc3ce2306e76e2d460cc21de938a79961e8b6e29661c3a8a25748"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.hubui.xzp",
+      "size": 2386,
+      "sha256": "1a2fcc79db8eaeb69e86610902ad389fc257bdb1433392a86a94443f065cb8e0"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.iptv.xzp",
+      "size": 5486,
+      "sha256": "e6b1f22891cc65c4d02db22ede3cb8939ece3b7eae7e7e49466614340b9c3473"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.memory.xzp",
+      "size": 70344,
+      "sha256": "fdd82a82273c12d28e7eea9c3003575758d100bc0a4158776413b42f8ccad616"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.music.xzp",
+      "size": 25496,
+      "sha256": "e7bbbcb5c4b636ec30fd8340f279446a0cfee3dce98f06a6b19a9efca9248d11"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.network.xzp",
+      "size": 123321,
+      "sha256": "d5e441ecd5eca6043fdb635d05172069d887dc333624bb6a388a0ae96be51135"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.oobe.xzp",
+      "size": 15809,
+      "sha256": "770efeedd47d7c057da47a69289a485037dd82158129de40dec0bfc70d9e8aa9"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.parental.xzp",
+      "size": 5881,
+      "sha256": "fe3da8df5be7f59ec28f9cfcbda0e44ef809cb56755b91fff96a556eb265b3f3"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.pictures.xzp",
+      "size": 5697,
+      "sha256": "509f3339ec6c28e67b1c2bdf9963589c5d63d39f131d1acfd4f8b7fd33719b07"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.SharedUI.xzp",
+      "size": 79922,
+      "sha256": "32580551957f69006c89d2e0bad22a30cfd689903437a0785f58f9cd66e965d3"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.signinpr.xzp",
+      "size": 5276,
+      "sha256": "fba2c0c42521de0371cd289acb68b891c58d3a0cf23e3c8d1c8d85395a52fef8"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.signupbo.xzp",
+      "size": 3699,
+      "sha256": "47040cd438de8fa2e2e2528c74538b7bbd5d3bce8392403979fae9f40ef9721c"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.slots.xzp",
+      "size": 3249,
+      "sha256": "acb0c04c2c8558702d616083120e023f9708b96428c60157e32e084c106342fc"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.socxzp.xzp",
+      "size": 18394,
+      "sha256": "51a0871cfe2a949984235760e0cbbb51ab3a9a0e313e7024c7657ab045d12b8e"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.thermal.xzp",
+      "size": 4425,
+      "sha256": "503899038e454cd68bdd509607a8a30dc841cc5230868d7456ad4c1b5c5df763"
+    },
+    {
+      "path": "$SystemUpdate/L.dash.xex.videos.xzp",
+      "size": 12068,
+      "sha256": "8de4727a2085128045b54137c64d5216785bb5a5d09f4f48848ed2cbf3d458a6"
+    },
+    {
+      "path": "$SystemUpdate/L.dashnui.xex.speechpa.xzp",
+      "size": 4481,
+      "sha256": "9fe13a7ab98724e33fbd37dbf8ffad552719ca2923c2cc7451cfafb058722b5e"
+    },
+    {
+      "path": "$SystemUpdate/L.deviceselector.xex.media.xzp",
+      "size": 16178,
+      "sha256": "abbab82927eb6840f36a83533789c7ca39018d622d11ca9cb78d678452d1de71"
+    },
+    {
+      "path": "$SystemUpdate/L.DvdXPlayer.xex.dashcomm.xzp",
+      "size": 53103,
+      "sha256": "462128bff5792723a899a26c5e9cbf0b3ac4a4d0405dd6e0f90398c98e500da9"
+    },
+    {
+      "path": "$SystemUpdate/L.DvdXPlayer.xex.dvd.xzp",
+      "size": 13566,
+      "sha256": "e1628f18b46672b689d8d1016463e74270c9ec3eee85b266518a03d27579eaff"
+    },
+    {
+      "path": "$SystemUpdate/L.GamerProfile.xex.gp.xzp",
+      "size": 50001,
+      "sha256": "727fe132a9ebad87b81236ee04a7308e317c83e1de7c48431da92cc7ae78d2a8"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.AccountRecovery.xex.media.xzp",
+      "size": 5411,
+      "sha256": "330e65030e701367aaee23b3a94683ffad2451134bffd677377c3b6c066c7f1f"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.AccountRecovery.xex.shdmedia.xzp",
+      "size": 71613,
+      "sha256": "e6fb5f17aed3a1b90240809a64aab8277be90195c5076d4c7b5b8b7f9aa36d5d"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.AvatarMiniCreator.xex.avatarmc.xzp",
+      "size": 2611,
+      "sha256": "ef8b97733dd0579a94a0fa14b17bd3d88baaeefdf36ccfed25c5cafe886d6c14"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.Beacons.xex.media.xzp",
+      "size": 16050,
+      "sha256": "65377c3300814edce63413ebfa73d69bdba021c52a3dcc03be0758af91fed49f"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.ChatAndMessenger.xex.media.xzp",
+      "size": 8701,
+      "sha256": "edb48cbc5b7592718015c5b8aada5241e02ac56035b8e7282d0d12cd74d5fd43"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.CSVTrans.xex.CSVTrans.xzp",
+      "size": 12275,
+      "sha256": "829e54e2fe2551892b96596d8b19d5fc1075498edc76e442687abef43332b115"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.Fitness.xex.fitness.xzp",
+      "size": 44301,
+      "sha256": "5d7cd35327dadd13476d1619c3de2a4f4f78a9f382be6445b71672cfbcd69494"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.Friends.xex.friends.xzp",
+      "size": 59244,
+      "sha256": "df6bacf828aa17c87dc2dd1a6d3889d5d0f5788127fefc447b901bf49862a9db"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Download.xex.HudDLUI.xzp",
+      "size": 9045,
+      "sha256": "0958a79bbfeca855e19d8e0a7e0d0e0950f353f2d1d816bf6b3afb8592817bee"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Download.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.LiveAccount.xex.HudLAUI.xzp",
+      "size": 49340,
+      "sha256": "bd4411a9b5324efe1b99fb7b5345c32241d4d65f144aaa3f9fc7adfb6610eadd"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.LiveAccount.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.NuiPurchase.xex.HudPurUI.xzp",
+      "size": 28117,
+      "sha256": "3ac497233b1d61bbfa7b680a5e0a68cdf644af684686ba73eabd2779b122872e"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.NuiPurchase.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Payment.xex.HudPayUI.xzp",
+      "size": 32135,
+      "sha256": "73676d2d451761af860309c0123e815b49f6c3cae318a504c26c46c41e5b320d"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Payment.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.PaymentInst.xex.HudPiUI.xzp",
+      "size": 49876,
+      "sha256": "99cae7b18c102cf2f105d26873dae13074a5b04631668a6cc22acb77c4f5616f"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.PaymentInst.xex.SharedUI.xzp",
+      "size": 73306,
+      "sha256": "99ceca86f4d3f0fe20b5d5f8df3c18d16062feebc488c4a92d75864f14c065a7"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Purchase.xex.HudPurUI.xzp",
+      "size": 23903,
+      "sha256": "e35627af91948217dedf42cfbe2ce81d5419aaba9e2622e9c2eb8870bff7b98d"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Purchase.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Subscriptions.xex.HudSubUI.xzp",
+      "size": 12602,
+      "sha256": "d76246c245a704461a1446b6271267ee53f8d7d9d149c4b8d79217a47b27a300"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.MP.Subscriptions.xex.SharedUI.xzp",
+      "size": 81773,
+      "sha256": "4769cd080c561302bc7b0d9fd9ffa38549717a0a6acbae8072b720991625de2a"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.NetworkStorage.xex.media.xzp",
+      "size": 6935,
+      "sha256": "c6eb95d386577e40e43a09edb9a6f8007cf64cbe71d3098d97475dea84e17176"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.NuiCommunity.xex.media.xzp",
+      "size": 24091,
+      "sha256": "e579faefb1f3899d16cb3a1fd13ce82bcfd1d2ad89df1738cb76fe6666b9a013"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.NuiTroubleshooter.xex.media.xzp",
+      "size": 75302,
+      "sha256": "6be5de0fb09c85ec2b1129805f939814f2bd0f3000fdbc693e3268824c98781f"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.PlayerFeedback.xex.Feedback.xzp",
+      "size": 48264,
+      "sha256": "1eb66fbb8d9cbba4a453fecc66cecacd21b36621b7377294e535c1cb9ab11977"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.SocialPost.xex.media.xzp",
+      "size": 25567,
+      "sha256": "0274260dc446d6d9a78d2f2dfcfa086564347a44e0043e5df41cffe61234a8aa"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.TFA.xex.media.xzp",
+      "size": 45293,
+      "sha256": "a98907f9a680bc5fc6828a30d084a8072faa3bc9a49d98612aa63b8513bf656e"
+    },
+    {
+      "path": "$SystemUpdate/L.Guide.Voicemail.xex.media.xzp",
+      "size": 6596,
+      "sha256": "940bc54bae90cfca925bbe31a3f4fe461009957978cce2d2684b94ff33805a31"
+    },
+    {
+      "path": "$SystemUpdate/L.hud.xex.hud.xzp",
+      "size": 42667,
+      "sha256": "f9a1d052d30d6c8019ad5a67594e294374e9dd00f8f994e84bd45a1649e92aef"
+    },
+    {
+      "path": "$SystemUpdate/L.huduiskin.xex.xam.xzp",
+      "size": 59756,
+      "sha256": "cb9a77184718af0cd2c55eab1718cf15194490156aecc22d568647dc4415bb4f"
+    },
+    {
+      "path": "$SystemUpdate/L.LiveSignup.xex.controlp.xzp",
+      "size": 7531,
+      "sha256": "14c11de95d47e2c5693e10cfc34c302715ea26c15fa2afcd57a191861ce84ee6"
+    },
+    {
+      "path": "$SystemUpdate/L.LiveSignup.xex.media1.xzp",
+      "size": 197704,
+      "sha256": "7bbddc9b53a0de4481571fdcf1eafaab51d5237f34fe19e583c85922b203d673"
+    },
+    {
+      "path": "$SystemUpdate/L.LiveSignup.xex.media2.xzp",
+      "size": 22906,
+      "sha256": "26cd01afefac8ca354ee01424c76e6c2b568d54669618acff74f569d6d95a522"
+    },
+    {
+      "path": "$SystemUpdate/L.MiniMediaPlayer.xex.media.xzp",
+      "size": 14981,
+      "sha256": "1f3aba578387a3c59d6276a47185297291888446d93adb9d3b65e487ca1b6f56"
+    },
+    {
+      "path": "$SystemUpdate/L.nuihud.xex.media.xzp",
+      "size": 2873,
+      "sha256": "8360521679206cfff509c134053f5a3b02e492464767f745bf73f64fd4597554"
+    },
+    {
+      "path": "$SystemUpdate/L.signin.xex.signin.xzp",
+      "size": 36187,
+      "sha256": "90e59d8f3fa4f1b13089a9fca3bf49bd8f1bd83cce3ad36779755117957b3760"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.app.xzp",
+      "size": 68106,
+      "sha256": "0dc63dc991b90ed650594fb42152eccc907250ec8eb7885e8a3adca5c427a678"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.ccapp.xzp",
+      "size": 30216,
+      "sha256": "ef152d1b3da7cbd9201efe9a8be4c22415718a6009f6a602802db5255bca8b10"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.controlp.xzp",
+      "size": 7531,
+      "sha256": "14c11de95d47e2c5693e10cfc34c302715ea26c15fa2afcd57a191861ce84ee6"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.embedded.xzp",
+      "size": 561,
+      "sha256": "cd358d1fe210ff83e05f85234148627e5f4668181c3922744f2b5ca232295fa3"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.media.xzp",
+      "size": 71613,
+      "sha256": "e6fb5f17aed3a1b90240809a64aab8277be90195c5076d4c7b5b8b7f9aa36d5d"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.media2.xzp",
+      "size": 22906,
+      "sha256": "26cd01afefac8ca354ee01424c76e6c2b568d54669618acff74f569d6d95a522"
+    },
+    {
+      "path": "$SystemUpdate/L.Title.NewLiveSignup.xex.vkmedia.xzp",
+      "size": 11859,
+      "sha256": "ad941f38269a9b5c83064ea24d44a1f69c5dbffdf7b5f2f7c448bd1017ec2991"
+    },
+    {
+      "path": "$SystemUpdate/L.updater.xex.updater.xzp",
+      "size": 9804,
+      "sha256": "59142ab2cf6575c2db0efba8b4c1c78d3cb3fb0341ff3d2af8849dc84d4c8d6f"
+    },
+    {
+      "path": "$SystemUpdate/L.vk.xex.vk.xzp",
+      "size": 11859,
+      "sha256": "ad941f38269a9b5c83064ea24d44a1f69c5dbffdf7b5f2f7c448bd1017ec2991"
+    },
+    {
+      "path": "$SystemUpdate/L.xam.xex.controlp.xzp",
+      "size": 958,
+      "sha256": "a243722f890266d0d5555ac0e3388eabea31b453e2bf11a919e40c38e3d5f64f"
+    },
+    {
+      "path": "$SystemUpdate/L.xam.xex.gamercrd.xzp",
+      "size": 6389,
+      "sha256": "70bea3ae7da3e6595c233974ab2cd20de420d2d4ec69272f01a62efd59ceeacb"
+    },
+    {
+      "path": "$SystemUpdate/L.xam.xex.mplayer.xzp",
+      "size": 1492,
+      "sha256": "f2c4570ca2cbfe86f1399bfc5189fde3008248afdc21d90d7ef9d53bcec18521"
+    },
+    {
+      "path": "$SystemUpdate/L.xam.xex.shrdres.xzp",
+      "size": 14021,
+      "sha256": "a0ceeef262ce622f6131b163568a495472455e6933d5093165e36744c07d2a95"
+    },
+    {
+      "path": "$SystemUpdate/L.xam.xex.xam.xzp",
+      "size": 874,
+      "sha256": "1b026e3bff940fbca70aec3c89dce6ea6375fa08ad8cd55a7c5eef8be63924f9"
+    },
+    {
+      "path": "$SystemUpdate/natalsu.xex",
+      "size": 69632,
+      "sha256": "691316d90a0422d537f5a2c31b9ce2729c0ea0e98f08cee5367350d9601b800a"
+    },
+    {
+      "path": "$SystemUpdate/nuihud.xex",
+      "size": 69632,
+      "sha256": "162329f13c2b1e29bae580f69e6ff92f18264589cd290ca532cff4ca3a87dfa8"
+    },
+    {
+      "path": "$SystemUpdate/PlayReady.xex",
+      "size": 3219456,
+      "sha256": "2748c658b65a042f9c8db0a3c6874b394e2b6b6a736dedefa03f7b56d2326b18"
+    },
+    {
+      "path": "$SystemUpdate/su20076000_00000000",
+      "size": 11784192,
+      "sha256": "37fe00bcaa170a4d6507665f49ec58fd2fd6242791a99262dbc268bb02fdc631"
+    },
+    {
+      "path": "$SystemUpdate/system.manifest",
+      "size": 32036,
+      "sha256": "903564bf4906f86e17d2b38068e3c6bcc637ef893be0e16a7d171575969d80ff"
+    },
+    {
+      "path": "$SystemUpdate/Title.Zune.xex",
+      "size": 21938176,
+      "sha256": "d9486bb8654b9b660e7ac61bca150efadfe577feb87d04758ae91782453adea9"
+    },
+    {
+      "path": "$SystemUpdate/Xam.Community.xex",
+      "size": 335872,
+      "sha256": "6ae540b6979455f49e44c52a1c84678ab80f7e262b5db7ffdaa9b2f7baf9283a"
+    },
+    {
+      "path": "$SystemUpdate/Xam.WordRegister.xex",
+      "size": 69632,
+      "sha256": "086062f135654f8cd529244e4909d12a9bc909ffa58c60344dc58bc26e1fcabb"
+    },
+    {
+      "path": "$SystemUpdate/XenonSCLatin.xtt",
+      "size": 1392640,
+      "sha256": "6d44d6b65605bee7acfc96bb1d11bafdc3cc3abd57544eca560cd02c84abc590"
+    },
+    {
+      "path": "$SystemUpdate/XimeDic.xex",
+      "size": 659456,
+      "sha256": "39f64b4a6b0442e96bd70b29bb1deacb4a064337015e520314ddb3eef4f98a35"
+    },
+    {
+      "path": "$SystemUpdate/XimeDicCh.xex",
+      "size": 167936,
+      "sha256": "a1b7788f53ba6b499701e9e95ca37eb2a0f9d0337764b9fc4a3759889e232f91"
+    },
+    {
+      "path": "$SystemUpdate/ximedicex.xex",
+      "size": 430080,
+      "sha256": "a1f0e82bde6c01c89e9399844ac2fbd489f4c737e2c959f9ca0aebb771588987"
+    },
+    {
+      "path": "$SystemUpdate/XimeDic_CHS.xex",
+      "size": 69632,
+      "sha256": "830a2c0d2eda6b9d47bda339b818532f3a2e04e7555995ff5b41a50188a38da5"
+    },
+    {
+      "path": "$SystemUpdate/Xna_TitleLauncher.xex",
+      "size": 512000,
+      "sha256": "5da55eaa1c9512094cc48711d14796fe2d258e0e5cf7b7a423c02e3c6de38ceb"
+    }
+  ],
+  "destination_reread_verified": true
+}

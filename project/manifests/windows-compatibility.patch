@@ -1,0 +1,85 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 208495e..0c10f70 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -25,6 +25,7 @@ endif()
+ set(CMAKE_CXX_STANDARD 23)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ 
++option(NHLLEGACY_SDK010_VULKAN "Use the portable SDK 0.10 Vulkan target on Windows" OFF)
+ include(generated/rexglue.cmake)
+ 
+ # Sources
+@@ -35,7 +36,7 @@ include(generated/rexglue.cmake)
+ # the D3D12 command processor + plume presenter (Windows RHI), the glslang
+ # SPIR-V translator port (high-cut path C, reference-only), the .lib-linked
+ # replay tools, and the Win32 hooks. See docs/macos-port.md.
+-if(WIN32)
++if(WIN32 AND NOT NHLLEGACY_SDK010_VULKAN)
+ set(NHLLEGACY_SOURCES
+     src/main.cpp
+     src/kernel_stubs.cpp
+@@ -148,6 +149,9 @@ else()
+ endif()
+ 
+ rexglue_setup_target(nhllegacy)
++if(NHLLEGACY_SDK010_VULKAN)
++    target_compile_definitions(nhllegacy PRIVATE NHLLEGACY_SDK010_VULKAN=1)
++endif()
+ 
+ # Keep the SDK's bundled fmt headers AHEAD of Homebrew's.
+ #
+@@ -244,7 +248,7 @@ endif()
+ # nhllegacy so gpu/hooks/plume_present.cpp can drive an in-process plume swapchain
+ # from the intercepted guest Present. Same add_subdirectory pattern proven by the
+ # standalone gpu/smoke build.
+-if(WIN32)
++if(WIN32 AND NOT NHLLEGACY_SDK010_VULKAN)
+ add_subdirectory(third_party/plume ${CMAKE_BINARY_DIR}/plume_build)
+ target_link_libraries(nhllegacy PRIVATE plume d3d12 dxgi dxguid)
+ 
+@@ -341,13 +345,7 @@ target_include_directories(nhllegacy PRIVATE
+     "${REXSDK_DIR}/thirdparty/sdl3/include"
+     "${REXSDK_DIR}/thirdparty/renderdoc")
+ 
+-# snappy, for .xtr trace decompression in tools/replay. The Windows build links
+-# the SDK's prebuilt snappy*.lib, but SDK 0.10.x no longer ships snappy at all,
+-# so take it from the system package (brew install snappy).
+-find_path(SNAPPY_INCLUDE_DIR snappy.h REQUIRED)
+-find_library(SNAPPY_LIBRARY NAMES snappy REQUIRED)
+-target_include_directories(nhllegacy PRIVATE "${SNAPPY_INCLUDE_DIR}")
+-target_link_libraries(nhllegacy PRIVATE "${SNAPPY_LIBRARY}")
++# The portable trace-replay stub does not use snappy.
+ 
+ # rexglue_setup_target() links only rex::runtime, but the graphics cvars
+ # (vsync, draw_resolution_scale_*, readback_resolve, ...) and the Vulkan backend
+@@ -375,7 +373,7 @@ endif()
+ # Windows-only for now: it ships the Windows port binaries and uses a wide
+ # (wmain) entry point.
+ option(NHLLEGACY_BUILD_PACKAGER "Build the nhl-legacy-builder packager CLI" ON)
+-if(NHLLEGACY_BUILD_PACKAGER AND WIN32)
++if(NHLLEGACY_BUILD_PACKAGER AND WIN32 AND NOT NHLLEGACY_SDK010_VULKAN)
+     enable_testing()
+     add_subdirectory(tools/packager)
+ endif()
+@@ -386,6 +384,6 @@ endif()
+ # drives it through the *exported* CommandProcessor API (ExecutePacket /
+ # RestoreRegisters / RestoreEdramSnapshot) on a headless Runtime + our backend.
+ option(NHLLEGACY_BUILD_TRACE_TOOLS "Build the offline .xtr replay tool (nhl-trace-replay)" ON)
+-if(NHLLEGACY_BUILD_TRACE_TOOLS AND WIN32)
++if(NHLLEGACY_BUILD_TRACE_TOOLS AND WIN32 AND NOT NHLLEGACY_SDK010_VULKAN)
+     add_subdirectory(tools/replay)
+ endif()
+diff --git a/src/nhllegacy_app.h b/src/nhllegacy_app.h
+index a630fe0..4f089ee 100644
+--- a/src/nhllegacy_app.h
++++ b/src/nhllegacy_app.h
+@@ -37,7 +37,7 @@
+ // REXGLUE_USE_D3D12=OFF and rex/graphics/d3d12/* pulls in windows.h. Vulkan is
+ // the only backend there, so NHL_HAVE_VULKAN_BACKEND is always defined and the
+ // D3D12 fallback below is unreachable.
+-#ifdef _WIN32
++#if defined(_WIN32) && !defined(NHLLEGACY_SDK010_VULKAN)
+ #define NHL_HAVE_D3D12_BACKEND 1
+ #include "renderer/core/nhl_graphics_system.h"
+ #endif

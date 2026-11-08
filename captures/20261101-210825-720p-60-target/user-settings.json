@@ -1,0 +1,11 @@
+{
+  "source": "user reported",
+  "build": "RinkSide",
+  "configured_power_limit_w": 22,
+  "cpu_boost": "on",
+  "internal_resolution": "1280x720",
+  "upscaling": "off",
+  "supersampling": 1,
+  "measured_package_power_w": null,
+  "note": "22 W is the configured limit, not a logged power measurement."
+}

@@ -1,0 +1,470 @@
+# Вместимость календаря лиги во франшизе: 1350 игр → 1600 (src/nhl13_teams.cpp).
+# Буфер 0x93A8 = 37 800 байт = 1350 игр по 28 байт: выделение (ori r3, …, 0x93A8),
+# заполнение нулями (li r10, 1350 → mtctr) и предел, который передаётся в 827B2C58 и
+# 8286AD88. Без этого календарь 32 команд по 84 игры (1344 + 64 предсезонных)
+# переполняет буфер и портит кучу. Разбор — docs/teams.md.
+
+# 827B2300: три буфера календаря
+[[midasm_hook]]
+address = 0x827B2360
+name = "Nhl13ScheduleBytes"
+registers = ["r3"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827B2374
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827B27C0
+name = "Nhl13ScheduleBytes"
+registers = ["r3"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827B27D0
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827B2958
+name = "Nhl13ScheduleBytes"
+registers = ["r3"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827B2968
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+# 828DE2C8: календарь лиги при создании франшизы и новом сезоне
+[[midasm_hook]]
+address = 0x828DE510
+name = "Nhl13ScheduleBytes"
+registers = ["r3"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE520
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE5A8
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE5D8
+name = "Nhl13ScheduleCapacity"
+registers = ["r9"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE648
+name = "Nhl13ScheduleCapacity"
+registers = ["r6"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE6A8
+name = "Nhl13ScheduleCapacity"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828DE6D4
+name = "Nhl13ScheduleCapacity"
+registers = ["r9"]
+after_instruction = true
+
+# Фарм-клубы команд 30/31: массив объекта лиги +520 рассчитан на 30 команд НХЛ, элементы
+# 30/31 хранятся снаружи (src/nhl13_teams.cpp, LeagueExtra). Чтения внутри больших функций:
+# 828C0250 (сведения о команде при записи в leagueteams)
+[[midasm_hook]]
+address = 0x828C0434
+name = "Nhl13AffiliateAt"
+registers = ["r11", "r29", "r30"]
+after_instruction = true
+
+# 828CD4E8 — то же при создании франшизы с составами
+[[midasm_hook]]
+address = 0x828CD7B8
+name = "Nhl13AffiliateAt"
+registers = ["r11", "r15", "r29"]
+after_instruction = true
+
+# 828CD4E8: лишние игроки (больше 23) — в фарм-клуб: r23 = фарм-клуб − 30 (АХЛ с 30) → − 32
+[[midasm_hook]]
+address = 0x828CD928
+name = "Nhl13AffiliateAhl"
+registers = ["r23", "r11", "r16", "r29"]
+after_instruction = true
+
+# Кэш сведений о командах НХЛ (глобальный указатель 0x83987B64, выделяет 82920020):
+# записи по 136 байт на 30 команд (+0…+4079), флаги «посчитано» (+4080, 32 байта), число
+# команд (+4112) — всего 4116 байт. 82917CD8 заполняет запись команды, 82917E10 отдаёт её.
+# При 32 командах записи 30/31 переезжают за счётчик (+4116): выделение больше на 2 · 136,
+# адрес записи для номеров ≥ 30 — туда (иначе запись 30-й команды затирала кучу).
+[[midasm_hook]]
+address = 0x82920058
+name = "Nhl13TeamCacheBytes"
+registers = ["r3"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x82917D2C
+name = "Nhl13TeamCacheOffset"
+registers = ["r11", "r29"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x82917D44
+name = "Nhl13TeamCacheWords"
+registers = ["r10", "r29"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x82917E40
+name = "Nhl13TeamCacheOffset"
+registers = ["r11", "r30"]
+after_instruction = true
+
+# 828CD4E8 (создание команд и составов): ещё «АХЛ с 30» и «номер АХЛ = teamid − 2»
+# (разбор агента, team32_part1). При 32 командах номер АХЛ = teamid, первый — 32.
+[[midasm_hook]]
+address = 0x828CDC30   # addi r3, r11, -2: команда игрока АХЛ без клуба-владельца прав → r16 (номер)
+name = "Nhl13AhlOwnTeam"
+registers = ["r3", "r16"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CDE04   # addi r11, r3, -30: индекс в league+772[30] (данные команд АХЛ)
+name = "Nhl13AhlShift"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CDE4C   # addi r9, r16, -30: индекс своей команды АХЛ
+name = "Nhl13AhlShift"
+registers = ["r9"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CDF80   # li r11, 30: первый номер АХЛ на быстром пути
+name = "Nhl13AhlBase"
+registers = ["r11"]
+after_instruction = true
+
+# АХЛ на 32 (nhl_ahl_teams = 32, docs/ahl32.md): объекты клубов АХЛ league+772[30] — для
+# порядковых 30/31 (номера 62/63) снаружи (src/nhl13_teams.cpp: sub_8289B0E8 выделяет,
+# Nhl13AhlTeamObject подставляет; смещение (порядковый + 193) · 4 — в r11).
+[[midasm_hook]]
+address = 0x828CDE10   # lwzx r3, r11, r29: объект фарм-клуба для игрока с правами клуба НХЛ
+name = "Nhl13AhlTeamObject"
+registers = ["r3", "r11", "r29"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CE8F4   # lwzx r3, r11, r31 (828CE810: игрок в клуб АХЛ r29)
+name = "Nhl13AhlTeamObject"
+registers = ["r3", "r11", "r31"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CED80   # lwzx r5, r11, r31 (828CEBF0, цикл по НХЛ: объект фарм-клуба)
+name = "Nhl13AhlTeamObject"
+registers = ["r5", "r11", "r31"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CF190   # lwzx r3, r11, r31 (то же смещение из r1+120)
+name = "Nhl13AhlTeamObject"
+registers = ["r3", "r11", "r31"]
+after_instruction = true
+
+# 828CEBF0, цикл по клубам АХЛ (до 32 — место 828CF3C4 в nhl13_team_sites.toml): освобождение
+# объекта i-го клуба (r29 + 4 → +772[i]) и обнуление указателя. Для 30/31 — внешний объект, а
+# запись stwu пропускается (иначе обнулились бы +892/+896 — пул игроков и буфер).
+[[midasm_hook]]
+address = 0x828CF3AC   # lwz r3, 4(r29)
+name = "Nhl13AhlTeamObjectAt"
+registers = ["r3", "r30", "r31"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CF3B4   # stwu r20, 4(r29)
+name = "Nhl13AhlTeamObjectFreed"
+registers = ["r30", "r31"]
+jump_address_on_true = 0x828CF3B8
+
+# 828A8060 (создание франшизы): состояние лиги 52 ← настройки лиги +600 (2 — Матч звёзд со
+# сборными). При ahl32 сборных нет (126 команд — предел) → 0: событий выбора сборных и перерыва
+# (828B5A50) не будет (src/nhl13_teams.cpp, Nhl13AllStarGame).
+[[midasm_hook]]
+address = 0x828A80A8   # lwz r5, 600(r29)
+name = "Nhl13AllStarGame"
+registers = ["r5"]
+after_instruction = true
+
+# Вне франшизы (exhibitionteams) при ahl32: фарм-клуб Сиэтла/Вегаса — teamid 220/221 в знаковом
+# байте сведений (+190): extsb → байт без знака (−1 остаётся); 827C0D00 — «клуб АХЛ» и 220/221.
+[[midasm_hook]]
+address = 0x827C0E04   # cmpwi cr6, r26, 61
+name = "Nhl13AhlTeamidRange"
+registers = ["r26", "cr6"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x827C0E30   # extsb r11, r11 (фарм-клуб команды НХЛ)
+name = "Nhl13AffiliateByte"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x8280F02C   # extsb r24, r11 (8280EF90: запрос по фарм-клубу)
+name = "Nhl13AffiliateByte"
+registers = ["r24"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x8283DEAC   # extsb r11, r11 (8283DCF8: фарм-клуб в +20 объекта команды)
+name = "Nhl13AffiliateByte"
+registers = ["r11"]
+after_instruction = true
+
+# 827C0D00: команды НХЛ, у которых фарм-клуб — данный клуб АХЛ (без франшизы, по базе): 0…29 → 0…31
+[[midasm_hook]]
+address = 0x827C0E4C   # cmpwi cr6, r30, 30
+name = "Nhl13NhlBound"
+registers = ["r30", "cr6"]
+after_instruction = true
+
+# StatsCache (рейтинги команд по статистике): блоки на 30 записей, заполнитель 827F24A8 пишет
+# по числу строк статистики команд без предела — пока ограничиваем 30 (2 команды без мест).
+[[midasm_hook]]
+address = 0x827F2508   # mr r29, r3: число строк
+name = "Nhl13StatsCacheCount"
+registers = ["r29"]
+after_instruction = true
+
+# Создание франшизы (разбор агента, team32_part2).
+# 828CEBF0 — раздача свободных агентов по составам: цикл по НХЛ, «фарм-клуб − 30», «i + 30»
+[[midasm_hook]]
+address = 0x828CF1AC   # cmpwi cr6, r29, 30
+name = "Nhl13NhlBound"
+registers = ["r29", "cr6"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CED70   # addi r11, r4, -30: AHL-порядковый номер фарм-клуба
+name = "Nhl13AhlShift"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CF224   # addi r4, r30, 30: номер команды АХЛ
+name = "Nhl13AhlUnshift"
+registers = ["r4"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828CF570   # cmpwi cr6, r25, 30: потолок зарплат по командам НХЛ
+name = "Nhl13NhlBound"
+registers = ["r25", "cr6"]
+after_instruction = true
+
+# 828CE810: номер команды из AHL-порядкового (+ 30) — пара к 828CD928 (− 32)
+[[midasm_hook]]
+address = 0x828CE8C4   # addi r11, r29, 30
+name = "Nhl13AhlUnshift"
+registers = ["r11"]
+after_instruction = true
+
+# 828F8808, конец создания: ИИ составов — НХЛ 0…r22−1, затем остальные профи до 60.
+# r22 — число команд в списке НХЛ из меню (30 при меню на 30) → число команд НХЛ.
+[[midasm_hook]]
+address = 0x828F8FD8   # lwz r22, 100(r1)
+name = "Nhl13NhlCount"
+registers = ["r22"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828F8FE8   # lwz r22, 100(r1)
+name = "Nhl13NhlCount"
+registers = ["r22"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828F9754   # cmpwi cr6, r22, 60
+name = "Nhl13ProBound"
+registers = ["r22", "cr6"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828F9824   # cmpwi cr6, r29, 60
+name = "Nhl13ProBound"
+registers = ["r29", "cr6"]
+after_instruction = true
+
+# 828D32E8 — данные GM команды: номер зажимается до 29 (cmpwi 30 / li 29)
+[[midasm_hook]]
+address = 0x828D331C   # cmpwi cr6, r31, 30
+name = "Nhl13NhlBound"
+registers = ["r31", "cr6"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x828D3324   # li r31, 29
+name = "Nhl13NhlLast"
+registers = ["r31"]
+after_instruction = true
+
+# 828EF198 («места прошлого сезона»): кадр 1120 → 1136, чтобы массив B (АХЛ) переехал с
+# r1+784 на r1+800 — массив A (НХЛ, пары {команда, очки}) вырос до 32 (остальное — в
+# nhl13_team_sites.toml, класс PLAYOFF_RUN; эпилог 828EF6F4 addi r1, r1, 1120 → 1136 — там же).
+[[midasm_hook]]
+address = 0x828EF1A0   # stwu r1, -1120(r1)
+name = "Nhl13StackGrow16"
+registers = ["r1"]
+after_instruction = true
+
+# 82931B70 — порядок драфта: на первом сезоне копируется статическая таблица 2012 года
+# 0x83835200 на 30 команд (за ней сразу другой глобал) → своя таблица на 32 команды.
+[[midasm_hook]]
+address = 0x82931D68   # addi r9, r9, 20992
+name = "Nhl13DraftOrderTable"
+registers = ["r9"]
+after_instruction = true
+
+# 8289A868 — сборные Матча звёзд: teamid 30/31 → 218/219 (после tools/nhl32.py сборные там);
+# вызов откладывается на после юниоров (src/nhl13_teams.cpp, sub_828E7AC0).
+[[midasm_hook]]
+address = 0x8289A89C   # li r11, 30
+name = "Nhl13AllStarTeamA"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x8289A8A0   # li r10, 31
+name = "Nhl13AllStarTeamB"
+registers = ["r10"]
+after_instruction = true
+
+# 82931B70 — лотерея драфта 2012 года (82931EF8…82932030): 14 команд вне плей-офф, один
+# розыгрыш по порогам из 1000, подъём не больше чем на 4 места. При 32 командах вне плей-офф
+# 16 (r1+608, от худшей к лучшей) — лотерея по нынешним правилам НХЛ (src/nhl13_teams.cpp)
+# и переход сразу к победителям дивизионов (r27 = 0, r29 = 1 — как после розыгрыша).
+[[midasm_hook]]
+address = 0x82931EF8   # bl 0x82ED58C8 (rand) — начало розыгрыша
+name = "Nhl13DraftLottery"
+registers = ["r1", "r27", "r29"]
+jump_address_on_true = 0x82932034
+
+# 82809330 — дерево «НХЛ → 2 конференции → 6 дивизионов»: перед каждым из шести вызовов
+# 828FE278 (узел, число, массив команд на стеке r1+80) врезка подставляет дивизион на 32
+# команды по id узла (src/nhl13_teams.cpp, Nhl13NhlDivision; Запад 3–5, Восток 6–8).
+[[midasm_hook]]
+address = 0x828093EC   # bl 0x828FE278 — дивизион 3
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809424   # дивизион 4
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809464   # дивизион 5
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x828094B4   # дивизион 6
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x828094F8   # дивизион 7
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809534   # дивизион 8
+name = "Nhl13NhlDivision"
+registers = ["r3", "r4", "r5"]
+
+# 82809848 — дерево АХЛ «2 конференции (10, 11) → 6 дивизионов»: при nhl_ahl_teams = 32 врезка
+# перед каждым вызовом 828FE278 подставляет дивизион по id узла (src/nhl13_teams.cpp,
+# Nhl13AhlDivision; Запад 14, 15, 17 — в 17 фарм-клубы Сиэтла и Вегаса 220/221; Восток 12, 13, 16).
+[[midasm_hook]]
+address = 0x82809904   # bl 0x828FE278 — дивизион 14 (Midwest)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x8280994C   # дивизион 15 (North)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809994   # дивизион 17 (West)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x828099F4   # дивизион 12 (Atlantic)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809A3C   # дивизион 13 (East)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82809A84   # дивизион 16 (Northeast)
+name = "Nhl13AhlDivision"
+registers = ["r3", "r4", "r5"]
+
+# 82925900 — сортировка таблицы статистики: буфер записей при тройной ничьей (r1+400)
+# перетирается временными объектами с r1+496 → свой буфер (src/nhl13_teams.cpp, Nhl13TieBuffer).
+[[midasm_hook]]
+address = 0x82925A2C   # addi r11, r1, 400 — копия всех записей в буфер
+name = "Nhl13TieBuffer"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+address = 0x82925C2C   # addi r10, r1, 400 — три записи обратно по номеру
+name = "Nhl13TieBuffer"
+registers = ["r10"]
+after_instruction = true
+
+# 82925900 (виды 121/125/126): начало дивизиона = сумма размеров предыдущих, а не размер × номер
+# (src/nhl13_teams.cpp, Nhl13DivisionStart; разбор — docs/audit-2026-10-07.md).
+[[midasm_hook]]
+address = 0x829264B0   # mullw r11, r3, r25
+name = "Nhl13DivisionStart"
+registers = ["r11", "r24", "r25"]
+after_instruction = true
+
+# 829212E8: список номеров записей узла — не писать больше выделенного (r26).
+[[midasm_hook]]
+address = 0x82921410   # lwz r11, 84(r31) — перед list[count] = k
+name = "Nhl13TeamListFull"
+registers = ["r31", "r26"]
+jump_address_on_true = 0x8292142C
+
+# 82925900: команды дерева нет среди записей (r9 = −1) — не копировать мусор из-за края буфера.
+[[midasm_hook]]
+address = 0x82925E7C   # lwz r11, 32(r19) — перед memcpy(запись, буфер + r9·24)
+name = "Nhl13TreeTeamMissing"
+registers = ["r9"]
+jump_address_on_true = 0x82925E98

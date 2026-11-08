@@ -1,0 +1,26 @@
+{
+    "label":  "720p-60-target",
+    "duration_seconds":  300,
+    "started_utc":  "2026-11-02T02:08:25.6580491Z",
+    "qpc_start":  1298855044319,
+    "qpc_frequency":  10000000,
+    "game_pid":  3632,
+    "logical_processors":  8,
+    "settings_label_is_user_description":  true,
+    "power_watts":  null,
+    "temperature_c":  null,
+    "sensor_status":  "Package power, temperatures and clocks not yet connected; null means unavailable, never zero.",
+    "presentmon_version":  "2.5.1",
+    "executable_path":  "C:\\Users\\jesus\\AppData\\Local\\Programs\\RinkSide\\NHL Legacy\\nhllegacy.exe",
+    "binary_hashes":  [
+                          {
+                              "Path":  "C:\\Users\\jesus\\AppData\\Local\\Programs\\RinkSide\\NHL Legacy\\nhllegacy.exe",
+                              "Hash":  "5630ABAF3C0B412275564F07DFE940F0BAB7259031672A39DB428A3CAA348CA2"
+                          },
+                          {
+                              "Path":  "C:\\Users\\jesus\\AppData\\Local\\Programs\\RinkSide\\NHL Legacy\\rexruntime.dll",
+                              "Hash":  "6CDBD6320F1487CE8C3A34D5085ABFDDC1D9D20EB3D416F06A37171D97BDDEEC"
+                          }
+                      ],
+    "finished_utc":  "2026-11-02T02:13:27.6102882Z"
+}

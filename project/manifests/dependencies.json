@@ -1,0 +1,115 @@
+{
+  "erik_commit": "831f49b7d6c0fcf43b3633f4958b38cb5c4cd66d",
+  "sdk_commit": "c94f5ebdcb3c9d1a460ca48e04f9758448f8d518",
+  "expected_xex_sha256": "d818eb15775c1fee34b057b0fc494b211535d07123230ee45bd7d40991c55624",
+  "actual_xex_sha256": "d818eb15775c1fee34b057b0fc494b211535d07123230ee45bd7d40991c55624",
+  "patches": [
+    {
+      "name": "rexglue-audio-worker-nonalertable.patch",
+      "sha256": "12246172ea0149d38d566cf4535d223fef2b8fc99af77d47eaaab90bf9467255"
+    },
+    {
+      "name": "rexglue-codegen-bcctr-tail-fix.patch",
+      "sha256": "b204fab2c9238a1378621a8b942a8b8d5201450859fc47b71a774bdddbd9ec87"
+    },
+    {
+      "name": "rexglue-cp-idle-stats.patch",
+      "sha256": "7e8914baf7da84be96e2ffac5c3f5ad72df0d74bfebb6ca524d501af3327e300"
+    },
+    {
+      "name": "rexglue-cp-profile.patch",
+      "sha256": "74deb749900b74f2f5f7e3e3540b010e4a1e6e5c794eb3999d652fea73551b24"
+    },
+    {
+      "name": "rexglue-fence-wait-stats.patch",
+      "sha256": "22c74f4caebe03f586281067493c1009bee3528be23c9f825ea4a36d47cdc1a7"
+    },
+    {
+      "name": "rexglue-frames-in-flight.patch",
+      "sha256": "844484e967329bc35bfad039522ff51854accc16bc082e8ddb23d1c4c16d9520"
+    },
+    {
+      "name": "rexglue-gpu-prof.patch",
+      "sha256": "fec8f4945099bb94cde368489071584da0ec8d346ce7ac331467b276b64171a9"
+    },
+    {
+      "name": "rexglue-macos-fsi-tiling-fixes.patch",
+      "sha256": "9e29f0ecd56a5658de54e46932cc615f956c71822c7daf3dd409e848a2d7b82e"
+    },
+    {
+      "name": "rexglue-nhl-nuc-combined.patch",
+      "sha256": "8e9811c80ee2bb0fe1f56a4868aaee8b5b27825405e2f4870f65caa617e7906c"
+    },
+    {
+      "name": "rexglue-pkthist.patch",
+      "sha256": "63742600d378ef1b261c8058b4f856fc7fb091552b31e13e1c7bd455ce6a1483"
+    },
+    {
+      "name": "rexglue-present-diag.patch",
+      "sha256": "ed5839cad0e240a36399441e0cca4916abc57a5f89943a36ad3090d0d99759f1"
+    },
+    {
+      "name": "rexglue-present-thread.patch",
+      "sha256": "b587651ea84b5ef4a16c72aa65efda87401f2b1a16dda865acb68eae46ea5417"
+    },
+    {
+      "name": "rexglue-rb-per-dest.patch",
+      "sha256": "a4ba052510a1075a6b179557226bea27b0297a52277232b877f32e37fed5094a"
+    },
+    {
+      "name": "rexglue-reslog-ownership-diag.patch",
+      "sha256": "79ff37290358616f70117f320247b16f1d5d7e61458f0d2163814d8cea28a47c"
+    },
+    {
+      "name": "rexglue-resolve-log.patch",
+      "sha256": "610dd138bad708b73f770d1ac1a7e6cf4b8e4db50919ae169723737566ff0e49"
+    },
+    {
+      "name": "rexglue-rptr-incremental.patch",
+      "sha256": "9c5baf67e04843674687a947e80d060a579ad60d50479272cad06a0248ea4c70"
+    },
+    {
+      "name": "rexglue-rt-skip-overwritten-transfers.patch",
+      "sha256": "042bcadaa2c56b7d5fe79fe2eb84e7b2ffadcabde586a8941aba905666e5d784"
+    },
+    {
+      "name": "rexglue-rtv-unclipped-extent-fix.patch",
+      "sha256": "9ed7cc196fa04428e8635b6ab3e5bb8e2d88ad7a76f563d27cc3dc1dd403cb7a"
+    },
+    {
+      "name": "rexglue-shm-unlink-fix.patch",
+      "sha256": "ed6686936137da5777cd390c34ed48996d977b9a78640170e6d333af39b2da5e"
+    },
+    {
+      "name": "rexglue-sync-input-pump.patch",
+      "sha256": "f36fbce74763c58a79a69eada9db5a80c0bc559f740c02e73132bb4d668e4a88"
+    },
+    {
+      "name": "rexglue-vp6-sharedmem-fixes.patch",
+      "sha256": "bdc529a4493e5fb76abcd46a1df4fd1ad6a76ac02bfbdb0a0e2127d71ff4b89b"
+    },
+    {
+      "name": "rexglue-vulkan-nhl-legacy-bd9b519.patch",
+      "sha256": "47457aa2a837e8f86d2eee734d1bd45e6592f713174a9416351c2b153726352d"
+    },
+    {
+      "name": "rexglue-wrm-trace.patch",
+      "sha256": "b06fbda1deccad01f793435cc9a27bfb9124b1c78388042643a01269efaa6b3b"
+    }
+  ],
+  "sdk_patch_status": "applied with --ignore-space-change; user approved matching Erik setup",
+  "windows_bootstrap_sdk": "bd9b5191 (old path; not selected)",
+  "selected_sdk_reason": "c94f5eb used by Erik Intel performance branch",
+  "python": "3.11.0",
+  "compiler": "LLVM Clang 20.1.8 Windows MSVC target",
+  "build_configuration": {
+    "type": "Release",
+    "architecture": "x86-64-v3",
+    "vulkan": true,
+    "d3d12": false,
+    "tracy": false,
+    "fidelityfx": false,
+    "parallel_jobs": 4
+  },
+  "windows_adaptation": "Opt-in NHLLEGACY_SDK010_VULKAN: reuse portable source set, omit obsolete high-cut/replay and D3D12 fallback; no snappy needed by unsupported trace stub."
+}

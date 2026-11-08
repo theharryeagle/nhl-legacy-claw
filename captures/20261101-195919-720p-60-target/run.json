@@ -1,0 +1,29 @@
+{
+    "label":  "720p-60-target",
+    "duration_seconds":  300,
+    "started_utc":  "2026-11-02T00:59:19.3502847Z",
+    "qpc_start":  1257391993687,
+    "qpc_frequency":  10000000,
+    "game_pid":  22344,
+    "logical_processors":  8,
+    "settings_label_is_user_description":  true,
+    "power_watts":  null,
+    "temperature_c":  null,
+    "sensor_status":  "Package power, temperatures and clocks not yet connected; null means unavailable, never zero.",
+    "presentmon_version":  "2.5.1",
+    "binary_hashes":  [
+                          {
+                              "Path":  "C:\\Emulation\\NHL-Legacy-Claw\\nhllegacy.exe",
+                              "Hash":  "10766BB180253011E422F44B70A5453AC88140333337A88C1E81962831F9830B"
+                          },
+                          {
+                              "Path":  "C:\\Emulation\\NHL-Legacy-Claw\\rexruntime.dll",
+                              "Hash":  "72362CD67844CBDF8438E4BDC9C4D57B9D6C704B3B87C56F9A4E88564F8D6DD7"
+                          },
+                          {
+                              "Path":  "C:\\Emulation\\NHL-Legacy-Claw\\rexgpu-xenos.dll",
+                              "Hash":  "7EC316A02D255FFB4F9A755A97F246DA5DAD43D086E4327697BE0BFD7CB69B6C"
+                          }
+                      ],
+    "finished_utc":  "2026-11-02T01:04:21.3375643Z"
+}

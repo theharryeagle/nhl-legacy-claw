@@ -1,0 +1,61 @@
+# Всё, что снято с диска или консоли, живёт только локально
+/game/
+
+# Страховка от случайного добавления игровых файлов
+*.iso
+*.xex
+*.big
+*.db
+*.fsb
+*.xma
+# музыка: банк игры и свои песни (tools/music.py) — только в game/
+*.sbs
+*.sbr
+*.mp3
+*.flac
+*.wav
+Data[0-9][0-9][0-9][0-9]
+_netrc
+.netrc
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Логи прогонов, сборок и игры — только локально
+*.log
+
+# Чужие репозитории для справки (puckhead73 и др.)
+/ref/
+
+# Порт: сгенерированный код (производное от кода игры) и сборка — только локально
+/nhl-13-port/generated/default/
+/nhl-13-port/out/
+/.claude/
+
+# Экспериментальная копия порта под свою сборку SDK (Vulkan + FSR/CAS), docs/sdk-build.md
+/port-ffx/
+# Рабочие копии портов: франшиза NHL 13 (docs/franchise-seasons.md), чистая сборка Legacy (docs/legacy-port.md)
+/port-fr/
+/nhl-legacy-port-clean/
+# свой саундтрек пользователя (tools/music.py) — не в git
+best_of_nhl/
+# Порт NHL Legacy (docs/legacy-port.md): в git — только свой код и сборка проекта; кодоген (производное
+# от кода игры), сборка, сейвы, образы и разведка прототипа (docs/legacy-port-feasibility.md) — только локально
+/nhl-legacy-port/*
+!/nhl-legacy-port/src/
+!/nhl-legacy-port/scripts/
+!/nhl-legacy-port/CMakeLists.txt
+!/nhl-legacy-port/CMakePresets.json
+!/nhl-legacy-port/build.cmd
+!/nhl-legacy-port/nhllegacy_*.toml
+!/nhl-legacy-port/nhllegacy_*.json
+!/nhl-legacy-port/dist-template/
+!/nhl-legacy-port/launcher/
+/nhl-legacy-port/launcher/icon/
+!/nhl-legacy-port/nhllegacy.example.toml
+!/nhl-legacy-port/generated/
+/nhl-legacy-port/generated/*
+!/nhl-legacy-port/generated/rexglue.cmake

@@ -1,0 +1,22 @@
+{
+  "cpu": {
+    "Name": "Intel(R) Core(TM) Ultra 7 258V",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 8
+  },
+  "gpu": {
+    "Name": "Intel(R) Arc(TM) 140V GPU (16GB)",
+    "DriverVersion": "32.0.101.9034",
+    "DriverDate": "2026-09-29T20:00:00-04:00"
+  },
+  "os": {
+    "Caption": "Microsoft Windows 11 Home",
+    "Version": "10.0.26300",
+    "BuildNumber": "26300"
+  },
+  "system": {
+    "Manufacturer": "Micro-Star International Co., Ltd.",
+    "Model": "Claw 8 AI+ A2VM Super Pack",
+    "TotalPhysicalMemory": 33866657792
+  }
+}

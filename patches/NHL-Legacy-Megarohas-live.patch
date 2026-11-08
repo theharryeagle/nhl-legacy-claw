@@ -1,0 +1,18 @@
+diff --git a/nhl-legacy-port/scripts/sdk_fetch.ps1 b/nhl-legacy-port/scripts/sdk_fetch.ps1
+index 5d7b92d..aaba22c 100644
+--- a/nhl-legacy-port/scripts/sdk_fetch.ps1
++++ b/nhl-legacy-port/scripts/sdk_fetch.ps1
+@@ -75,10 +75,10 @@ foreach ($sub in @("thirdparty\libmspack", "thirdparty\o1heap")) {
+ 
+ $patches = @(Get-ChildItem -Path $PatchDir -Filter "*.patch" | Sort-Object Name)
+ foreach ($p in $patches) {
+-    if (Test-Git @("-C", $SdkSrc, "apply", "--check", $p.FullName)) {
+-        Invoke-Git @("-C", $SdkSrc, "apply", $p.FullName)
++    if (Test-Git @("-C", $SdkSrc, "apply", "--ignore-space-change", "--check", $p.FullName)) {
++        Invoke-Git @("-C", $SdkSrc, "apply", "--ignore-space-change", $p.FullName)
+         Write-Host "[sdk] applied $($p.Name)"
+-    } elseif (Test-Git @("-C", $SdkSrc, "apply", "--check", "--reverse", $p.FullName)) {
++    } elseif (Test-Git @("-C", $SdkSrc, "apply", "--ignore-space-change", "--check", "--reverse", $p.FullName)) {
+         Write-Host "[sdk] already applied $($p.Name)"
+     } else {
+         throw "[sdk] $($p.Name) does not apply to $SdkSrc (tree changed?)"
